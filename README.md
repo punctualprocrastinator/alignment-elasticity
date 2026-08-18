@@ -37,6 +37,47 @@ Fuller narrative with figures: run `python scripts/build_report.py` to generate 
   split, but an unrelated control direction behaves the same way and the available lenses were
   fit on plain web text.
 
+## Ongoing work
+
+Current state: the observational phase is complete and the load-bearing claims have been
+re-run under [`protocol.md`](protocol.md). What remains splits into hardening the existing
+results and testing whether any of it is causal.
+
+**In flight / next up**
+
+| | Work | Why it matters |
+|---|---|---|
+| 1 | Honesty property re-run at protocol strength | The "formation timing does not predict elasticity" claim is the paper's headline and still rests on pre-protocol numbers. Needs difference intervals between properties, not two point estimates that look similar |
+| 2 | 32B replication | One lineage at one scale is the first objection any reader raises. Attempted; lost when the sandbox was reclaimed mid-download. `scripts/notebook_cells/RESTORE_a4_32b.md` makes it a restore rather than a rebuild |
+| 3 | **Non-safety control concepts** (sentiment, topic) | The most dangerous open question. If a sentiment direction shows the same cliff-then-flat pattern, none of this is about alignment — it is about what fine-tuning does to linear structure generally. See H4b in `project.md` |
+| 4 | Two datasets per concept | Concept and dataset are currently one-to-one, so "harmfulness forms at step 2,000" is confounded with "this dataset becomes decodable at step 2,000" (H4c) |
+| 5 | More concepts: sycophancy, power-seeking, eval-awareness | Sycophancy earns its place specifically because the literature says RLHF *should* move it — the one discriminating test of our RL null |
+| 6 | Graded steering (dose–response) replacing binary ablation | Adapted from Anthropic's emotion-concepts work. Reports the steering coefficient at which behaviour flips, rather than a flip rate — the right instrument for the read/steer split |
+| 7 | Frozen-SAE analysis | Pre-trained base SAEs exist (`decoderesearch/olmo-3-saes`, layers 4/16/28), so applying a frozen dictionary across the flow costs nothing to train. Feature-level analogue of the frozen-probe result |
+| 8 | Template deconfound, length-matched controls, RL-Zero-Mix recovery | Cheap loose ends |
+
+**Interventional phase (not started).** Ai2 released Dolma 3, Dolci, Open Instruct and OlmoRL
+under Apache-2.0, so counterfactual branches from any checkpoint are reproducible. This turns
+the project from observational to causal. Gated on a reproduction check — ~1,000 steps of SFT
+from base, confirming the cliff appears where the released checkpoints say it should — before
+any intervention is trusted. The first real experiment is **whether the cliff survives removing
+safety data from SFT**: if the refusal direction still rotates without it, the rotation is
+instruction-format acquisition rather than alignment learning, and much of the framing above
+has to be reworded. Full hypothesis set with failure points in [`project.md`](project.md).
+
+**Known methodological debt**
+
+- Causal claims outside A1 still need n≥100 with intervals.
+- Any probe-*direction* number produced before the `tol=1e-10` fix should be re-checked.
+- The J-space result needs a lens fit on chat-formatted data to separate a real effect from a
+  worse linearisation of chat-tuned models.
+- Sandboxes used for compute are ephemeral and have been reclaimed mid-run twice; artifacts are
+  mirrored locally as a matter of course. See the "sandbox mortality" note in
+  [`pipeline-notes.md`](pipeline-notes.md).
+
+Corrections are expected to continue. Nine claims have already been overturned by controls or
+larger samples; the ones most likely to move next are flagged above.
+
 ## Repository layout
 
 ```
