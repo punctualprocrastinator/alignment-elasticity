@@ -1,0 +1,61 @@
+{
+  "experiment": "A4 - 32B scale replication",
+  "status": "INCOMPLETE - sandbox sb-de00241482158d2a reclaimed (HTTP 410) during base-anchor download",
+  "date": "2026-08-07",
+  "protocol": "v1 (2026-08-07, incl. P1b)",
+  "checkpoints_completed": 0,
+  "checkpoints_planned": 7,
+  "measurements_produced": "none - no 32B activations were extracted",
+  "seed": 42,
+  "n_per_pool": 500,
+  "contrast": {
+    "harmful": "AdvBench harmful_behaviors.csv column goal",
+    "benign": "tatsu-lab/alpaca rows with empty input",
+    "split_fingerprint_sha1_12": "c4ed0db59d58",
+    "note": "allenai/wildguardmix is gated and no HF_TOKEN on box; AdvBench pool has only 520 items so 500/pool is the ceiling"
+  },
+  "model_geometry_32b": {
+    "num_hidden_layers": 64,
+    "hidden_size": 5120,
+    "num_attention_heads": 40,
+    "vocab_size": 100278,
+    "dtype": "bfloat16",
+    "weights_gb_per_checkpoint": 64.5
+  },
+  "layer_grid": [8, 16, 24, 32, 40, 48, 56, 63],
+  "poolings": ["last", "mean"],
+  "noise_floor_recomputed": {
+    "d_model": 5120,
+    "abs_cos_mean": 0.011154809908446547,
+    "abs_cos_p95": 0.030047509263709728,
+    "abs_cos_max": 0.039814247423113715,
+    "n_pairs": 190,
+    "k_directions": 20,
+    "analytic_sqrt_2_over_pi_d": 0.011150775725954819,
+    "validation": "same code reproduces 0.01172 for R^4096, matching the sibling 7B run's 0.0117"
+  },
+  "p1b_solver_check": {
+    "shape": "500 x 5120",
+    "tol_1e-4_iterations": 18,
+    "tol_1e-10_iterations": 33,
+    "seconds_per_fit_at_1e-10": 0.76,
+    "conclusion": "P1b confirmed on this data - the default tolerance stops LBFGS roughly half way"
+  },
+  "revisions_pinned": [
+    {"order": 0, "label": "base", "repo": "allenai/Olmo-3-1125-32B", "revision": "main", "safetensors_fp": "be0ef6a4f009aa7a"},
+    {"order": 1, "label": "sft-1k", "repo": "allenai/Olmo-3-32B-Think-SFT", "revision": "5e-5-step1000", "safetensors_fp": "e7292f17021e01fa"},
+    {"order": 2, "label": "sft-10790", "repo": "allenai/Olmo-3-32B-Think-SFT", "revision": "5e-5-step10790", "safetensors_fp": "91c593ba94cf300e"},
+    {"order": 3, "label": "sft-main", "repo": "allenai/Olmo-3-32B-Think-SFT", "revision": "main", "safetensors_fp": "e6282dbc427d27de"},
+    {"order": 4, "label": "dpo", "repo": "allenai/Olmo-3-32B-Think-DPO", "revision": "main", "safetensors_fp": "f65f29d56a00b876"},
+    {"order": 5, "label": "rlvr-50", "repo": "allenai/Olmo-3-32B-Think", "revision": "step_050", "safetensors_fp": "636bbe53a3f164f1"},
+    {"order": 6, "label": "rlvr-750", "repo": "allenai/Olmo-3-32B-Think", "revision": "step_750", "safetensors_fp": "211d82786f4babdd"}
+  ],
+  "revision_notes": [
+    "Olmo-3-32B-Think-SFT ships TWO learning-rate lineages (5e-5-* and 1e-4-*); its main is byte-distinct from both step10790 branches, so the cliff contrast is kept inside the 5e-5 run",
+    "all 7 planned revisions verified pairwise-distinct by safetensors sha256",
+    "Olmo-3-32B-Think (RLVR) branches run step_050 .. step_750"
+  ],
+  "box_facts": {"ram_gb": 160, "gpu": "RTX PRO 6000 Blackwell ~97.9 GB", "plain_cpu_load_then_to_cuda": "fits"},
+  "restore_doc": "scripts/notebook_cells/RESTORE_a4_32b.md",
+  "code": "scripts/pipeline_a4.py"
+}

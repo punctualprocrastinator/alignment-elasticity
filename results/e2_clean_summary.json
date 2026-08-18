@@ -1,0 +1,125 @@
+{
+ "protocol": "v1",
+ "seed": 42,
+ "split_fp": "b3879463f2c6",
+ "n_per_pool": 500,
+ "anchor": "base",
+ "solver_tol": 1e-10,
+ "deviations": [
+  "P2 sample size: 500 per pool, not 1000 -- allenai/wildguardmix is gated and HF_TOKEN is not set on this sandbox; resampling was impossible.",
+  "P4 bootstrap: refit-based quantities (probe-direction cosine) use 200 resamples rather than 1000, because each resample requires a fresh logistic fit; all non-refit quantities (AUROC, paired AUROC difference, diff-in-means cosine) use the full 1000.",
+  "P1 probe seeds: logistic regression on a fixed split is deterministic, so the >=3-seed rule is satisfied by 3 independent shuffled-null permutations per (layer, pooling) plus a 1000-resample bootstrap, which is strictly stronger than 3 point fits."
+ ],
+ "random_direction_reference": {
+  "abs_cos_mean": 0.011728322364422651,
+  "n_directions": 20,
+  "note": "cosine between two independent random unit vectors in R^4096"
+ },
+ "by_pooling": {
+  "last": {
+   "sft_cliff_delta_cos": {
+    "mean": -0.1851841475,
+    "lo": -0.19032900000000003,
+    "hi": -0.18001846875,
+    "p_boot": 0.0,
+    "point": -0.18443769148652733
+   },
+   "sft_15000_to_43000": {
+    "mean": -0.055893358750000004,
+    "lo": -0.05831406249999984,
+    "hi": -0.053414656250000095,
+    "p_boot": 0.0,
+    "point": -0.05583137547931716
+   },
+   "sft_end_to_dpo": {
+    "mean": -0.009304214999999994,
+    "lo": -0.010092593749999948,
+    "hi": -0.008496062499999985,
+    "p_boot": 0.0,
+    "point": -0.009297114654267746
+   },
+   "rlvr_total_delta_cos": {
+    "mean": 0.000866430000000001,
+    "lo": 0.0004571875000001058,
+    "hi": 0.001288843750000171,
+    "p_boot": 0.0,
+    "point": 0.0008967014438789889
+   },
+   "rlvr_indistinguishable_from_zero": false,
+   "cliff_excludes_zero": true,
+   "cliff_over_rlvr_ratio": 213.7323817273176,
+   "end_frozen_auroc": 0.8122624999999999,
+   "end_refit_auroc": 0.819577,
+   "end_gap": 0.007314500000000113,
+   "end_gap_ci": [
+    0.00018418750000005215,
+    0.0149801875
+   ],
+   "end_gap_excludes_zero": true,
+   "end_best_layer": 16,
+   "end_gap_best_layer": 0.0050880000000000924,
+   "end_gap_best_layer_ci": [
+    -0.00852819999999998,
+    0.01793399999999994
+   ],
+   "end_probe_cos_L31": 0.5021324638859145,
+   "end_cos_dim_mean": 0.6990213138424421,
+   "rlzero_cos_dim_mean": 0.9992651348083985
+  },
+  "mean": {
+   "sft_cliff_delta_cos": {
+    "mean": -0.08289606625,
+    "lo": -0.08610012499999985,
+    "hi": -0.08010659375000007,
+    "p_boot": 0.0,
+    "point": -0.08242491549766595
+   },
+   "sft_15000_to_43000": {
+    "mean": -0.01820037125,
+    "lo": -0.01939687500000011,
+    "hi": -0.017213218750000134,
+    "p_boot": 0.0,
+    "point": -0.018088346999072358
+   },
+   "sft_end_to_dpo": {
+    "mean": -0.0033324537499999965,
+    "lo": -0.0036463750000000684,
+    "hi": -0.0030262187500000063,
+    "p_boot": 0.0,
+    "point": -0.0033406662961530387
+   },
+   "rlvr_total_delta_cos": {
+    "mean": -0.00029520875000000046,
+    "lo": -0.0004100312500000203,
+    "hi": -0.00016868749999994498,
+    "p_boot": 0.0,
+    "point": -0.0002976872175806111
+   },
+   "rlvr_indistinguishable_from_zero": false,
+   "cliff_excludes_zero": true,
+   "cliff_over_rlvr_ratio": 280.80490923795406,
+   "end_frozen_auroc": 0.844424,
+   "end_refit_auroc": 0.8495055,
+   "end_gap": 0.005081500000000072,
+   "end_gap_ci": [
+    -0.0007339062499998661,
+    0.010502031249999955
+   ],
+   "end_gap_excludes_zero": false,
+   "end_best_layer": 16,
+   "end_gap_best_layer": -0.0012679999999999358,
+   "end_gap_best_layer_ci": [
+    -0.009316399999999883,
+    0.0067204999999998455
+   ],
+   "end_probe_cos_L31": 0.7274577421120272,
+   "end_cos_dim_mean": 0.8799028709425092,
+   "rlzero_cos_dim_mean": 0.9995823598196607
+  }
+ },
+ "q1_cliff_survives": true,
+ "q1_rlvr_inert": true,
+ "q2_gap_is_004": false,
+ "q2_gap_defensible": true,
+ "q3_pooling_agrees": true
+}

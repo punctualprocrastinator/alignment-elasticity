@@ -1,0 +1,72 @@
+{
+ "claim": "the ~step-2k onset and the shape of the formation curve are properties of the model, not artifacts of using a linear probe at the last token",
+ "survives": true,
+ "split_fp": "b3879463f2c6",
+ "seed": 42,
+ "crosscheck_vs_published": {
+  "n_compared": 152,
+  "max_abs_diff": 0.0,
+  "identical": true
+ },
+ "onset_step": {
+  "linear/last": 1000,
+  "linear/mean": 1000,
+  "mlp/last": 50000,
+  "mlp/mean": 1000
+ },
+ "q1_nonlinear_earlier": false,
+ "q2_meanpool_earlier": false,
+ "q3_nonlinear_beats_linear": false,
+ "q3_detail": {
+  "mlp_minus_linear_mean": -0.06164626666666665,
+  "mlp_minus_linear_max": -0.011094666666666586,
+  "mlp_minus_linear_max_at": "stage1-step0",
+  "n_ckpt_mlp_wins": 0,
+  "n_ckpt": 15,
+  "control_delta_mean": 0.0016817777777777673,
+  "meanpool_minus_last_mean": 0.0684022666666667
+ },
+ "auroc_first_step": {
+  "linear/last": 0.547244,
+  "linear/mean": 0.533192,
+  "mlp/last": 0.5361493333333334,
+  "mlp/mean": 0.5345626666666666
+ },
+ "auroc_last_step": {
+  "linear/last": 0.804076,
+  "linear/mean": 0.836084,
+  "mlp/last": 0.7082453333333333,
+  "mlp/mean": 0.785012
+ },
+ "null_band": {
+  "null_mean": {
+   "linear/last": 0.495,
+   "linear/mean": 0.482,
+   "mlp/last": 0.514,
+   "mlp/mean": 0.516
+  },
+  "null_hi": {
+   "linear/last": 0.588,
+   "linear/mean": 0.559,
+   "mlp/last": 0.615,
+   "mlp/mean": 0.625
+  }
+ },
+ "layer4_peak_ood_auroc_stage1": {
+  "linear/last": 0.59,
+  "linear/mean": 0.73,
+  "mlp/last": 0.565,
+  "mlp/mean": 0.708
+ },
+ "layer4_chance_subclaim_survives": false,
+ "layer4_margin_over_null": {
+  "linear/last": 0.0023880000000000567,
+  "linear/mean": 0.17110399999999992
+ },
+ "best_layer_end_stage1": {
+  "linear/last": 31,
+  "linear/mean": 16
+ },
+ "meanpool_minus_last_mean_auroc": 0.0684022666666667,
+ "n_revisions": 20
+}

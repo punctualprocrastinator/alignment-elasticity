@@ -1,0 +1,16 @@
+# Separate research track — kept private
+verification-paper.md
+integrity-poc-notes.md
+integrity_report.html
+scripts/build_integrity_report.py
+figures/fig_integrity_*.png
+figures/fig_verify_smoke.png
+
+# Generated: rebuild with `python scripts/build_report.py` (embeds figures as
+# data URIs, ~4 MB — not worth versioning)
+report.html
+
+__pycache__/
+*.pyc
+.DS_Store
+.ipynb_checkpoints/
