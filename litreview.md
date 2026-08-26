@@ -62,6 +62,20 @@ Three groups, three answers about whether base-era directions still steer post-t
 | Harmfulness Directions (LessWrong) | Post-training directions steer **better** than pretraining ones |
 | **This project (A1, n=200)** | Base direction moves the deployed model **further** (156% of base displacement) yet flips **fewer** decisions (crossing rate 0.350 vs 0.670) |
 
+**CAUTION (verified 27 Aug, methods section of 2605.13329):** the persona-vectors paper is more
+careful than the summary above implies. It **normalises the steering coefficient by the local
+residual-stream norm** so that dose is "comparable across checkpoints"; it **reports per-model
+unsteered baselines separately**; it reports **pass rates** (fraction of generations exceeding a
+trait-score threshold) alongside the raw delta; and it uses **paired permutation tests**. So the
+simple critique "they measured displacement, we measured outcome" does NOT land.
+
+What survives is narrower and must be stated precisely: their normalisation is **input-side**
+(activation norm), not **boundary-relative**. Our A1 result shows the unsteered distance to the
+behavioural decision boundary varies ~9x across the flow (+0.85 logits at base vs +7.85 at
+Instruct). An input-side norm match does not equalise that, and an absolute pass-rate threshold
+does not control for it either. That is a refinement of their method, not a refutation — and any
+write-up must present it that way.
+
 These are not contradictory — they are the same phenomenon under different metrics. A direction
 that produces a larger logit displacement on a model sitting deeper inside refusal can still
 change fewer decisions. **Nobody has said this.** It is cheap to demonstrate, it reconciles
