@@ -78,6 +78,16 @@ has to be reworded. Full hypothesis set with failure points in [`project.md`](pr
 Corrections are expected to continue. Nine claims have already been overturned by controls or
 larger samples; the ones most likely to move next are flagged above.
 
+## Relation to prior work
+
+A verification sweep of the OLMo-checkpoint interpretability literature is in
+[`litreview.md`](litreview.md). Several findings below are **independently established by prior
+work and are reported here as replications, not claims of priority** — notably early formation of
+harmfulness directions, the SFT transition being the largest single shift, and "information
+preserved while the basis rotates". Where our numbers disagree with published results (base-era
+directions steering post-trained models), `litreview.md` sets out why we believe the disagreement
+is a measurement artifact rather than a contradiction.
+
 ## Repository layout
 
 ```
