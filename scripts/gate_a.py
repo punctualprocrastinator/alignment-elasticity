@@ -745,7 +745,7 @@ def gate_a_launch(art=ART, **kw):
         if th.name == "gateA-worker" and th.is_alive():
             return {"launched": False, "reason": "gateA-worker already alive"}
     pth = paths(art)
-    ckpts = kw.get("ckpts") or CKPTS
+    ckpts = kw["ckpts"] if "ckpts" in kw and kw["ckpts"] is not None else CKPTS
     missing = [lab for lab, _r, _b, _c in ckpts if not os.path.exists(pth["sweep"](lab))]
     if not missing:
         return {"launched": False, "reason": "all sweep artifacts present"}

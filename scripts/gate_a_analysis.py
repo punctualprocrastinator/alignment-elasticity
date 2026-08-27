@@ -468,9 +468,12 @@ def verdict(summary, spread_threshold=0.5):
                        else "n/a (full-sample d_50 undefined)",
                        v["lo"], v["hi"])
                     for k, v in sig.items())
-                + ". These models cross less even at equal displacement past "
-                  "their own boundary, so post-training changed more than the "
-                  "baseline distance.")
+                + ". A residual effect survives boundary-matched dosing, so "
+                  "post-training changed more than the baseline distance. NOTE "
+                  "THE SIGN: a NEGATIVE excess difference means the second model "
+                  "needs LESS displacement past its own boundary, i.e. it is "
+                  "EASIER to steer, not harder. Read each interval before "
+                  "describing the direction of the effect.")
     else:
         outcome = "A-partial"
         stmt = ("MIXED. No pairwise d_50-excess interval excludes zero, but "

@@ -715,6 +715,72 @@ unvalidated) + ~25 min analysis. Drop order if tight: `sft-main` and `rlvr-50`
 first, leaving base -> sft-1k -> sft-10790 -> dpo -> rlvr-750 (still shows
 cliff-then-flat, loses the RLVR-drift contrast).
 
+## Gate A COMPLETE (2026-08-27) — the steering "decay" INVERTS under dose matching
+
+4/4 checkpoints, 33.9 min, every artifact pulled and sha1-verified as it landed.
+Split fingerprint **99a7ac88967302166d6e1698d1eebae8d2fd9576**, SEED=42, identical
+across all four records; the cached split was deleted and regenerated from
+network and reproduced the prior run's fingerprint exactly (independent
+reproducibility check). Nulls: 20 matched-norm random directions, displacement
+z 4.1-6.9. No model failed to cross; `EXTRA_C` never triggered.
+
+**d50_excess = d_50 - median unsteered gap (mass-mean, 1000 paired bootstrap):**
+
+| model | median gap | c_50 | d_50 [95% CI] | **d50_excess [95% CI]** |
+|---|---|---|---|---|
+| base | 0.536 | -0.272 | 1.515 [1.233, 1.814] | **0.979 [0.662, 1.273]** |
+| instruct | 7.870 | -1.224 | 7.907 [7.564, 8.214] | **0.037 [-0.251, 0.237]** |
+| rlz-math | 0.771 | -0.310 | 1.853 [1.475, 2.140] | **1.082 [0.756, 1.381]** |
+| rlz-code | 0.654 | -0.262 | 1.610 [1.344, 1.960] | **0.957 [0.666, 1.407]** |
+
+**Verdict B — and the sign is OPPOSITE to the A1 narrative.** Instruct's excess
+is ~0: it crosses essentially AT its own boundary, while base/rlz-math/rlz-code
+need ~1.0 logit PAST theirs. **Instruct is the EASIEST model to move per unit
+boundary-relative displacement, not the most resistant.** Pairwise diffs
+excluding zero: base-instruct +0.942 [0.564, 1.375]; instruct-rlz-math -1.046
+[-1.500, -0.634]; instruct-rlz-code -0.920 [-1.476, -0.585]. The three
+non-instruct pairs all cover zero (they are indistinguishable from each other).
+
+Verdict guards all passed, so this is not an artifact of a thin window:
+displacement overlap 71% of the narrowest model's range, boundary-relative 74%,
+coverage 1.00 on all three axes, `spread_trustworthy = True`. Spread by c 0.155
+-> by displacement 0.662 -> boundary-relative 0.234; `spread_reduction_rel` =
+**-0.51** (NEGATIVE: displacement matching *increases* spread — there is no
+collapse, which is why the verdict is B and not A).
+
+**Behavioural at each model's own c_50 (n=100, 512 tokens):** base 0.80 -> 0.62,
+**instruct 1.00 -> 0.18**, rlz-math 0.81 -> 0.62, rlz-code 0.83 -> 0.56. Instruct
+shows by far the LARGEST behavioural swing. Unclosed `<think>` 0.00 throughout.
+
+### What this means — A1's "steering decays" was an intervention artifact
+A1 used **ablation**: a fixed, non-tunable intervention that removes whatever
+component lies along the direction. Instruct's refusal logit mass had grown to
+7.87 vs base's 0.54, so a fixed removal flips base and fails to flip Instruct.
+**Given a dose scaled to the model, the deployed model is if anything easier to
+steer.** This RECONCILES us with the literature rather than contradicting it:
+persona vectors (2605.13329) report base-derived vectors remain effective, and
+the LessWrong OLMo post reports post-training directions steer better — both
+consistent with this. The publishable claim is about the *instrument*:
+fixed-magnitude interventions understate steerability on models whose baseline
+sits far from the decision boundary, and the error grows with post-training.
+
+**Do NOT quote the canned Outcome-B sentence** ("these models cross less at
+equal displacement") — wrong sign for this result; the wording has been made
+sign-agnostic in gate_a_analysis.py.
+
+Robustness: mass-mean vs logistic cos = 0.739, yet same three pairs significant
+with the same signs. `c_50` moves between operationalisations (base -0.272 vs
+-0.369) while `d_50` barely does (1.515 vs 1.509) — **the displacement axis is
+the invariant one**, which is itself an argument for reporting it.
+
+**Latent bug found by the run:** `ckpts = kw.get("ckpts") or CKPTS` — an empty
+list is falsy, so requesting a subset silently ran all four. Fixed. The resume
+guard behaved correctly (`skip base (all stages complete)`).
+
+Also on arrival: the sandbox held a complete 4-model artifact set from the
+PRE-FIX code (gate_a.py sha 2857c655 vs reviewed 0419d683, `stages_complete:
+None`). Archived to /marimo/gateA_prior_prefix/ rather than trusted.
+
 ## Gate A, partial (2026-08-27) — box reclaimed at 2/4 models, but the design changed
 
 Sandbox reclaimed mid-`generate:instruct`. **No result files survived** — artifacts were written

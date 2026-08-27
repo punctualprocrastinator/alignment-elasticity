@@ -1,4 +1,11 @@
-# Separate research track — kept private
+# Separate research track — kept private.
+# Match by PATTERN, not by exact filename: these docs get renamed, and an exact
+# match silently stopped covering verification-paper.md when it became
+# mechanistic-tamper-verification.md, which then reached a public commit.
+*verification*.md
+*tamper*.md
+*integrity*.md
+*integrity*.html
 verification-paper.md
 integrity-poc-notes.md
 integrity_report.html
