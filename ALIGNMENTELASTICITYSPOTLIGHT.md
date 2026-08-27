@@ -1,5 +1,49 @@
 # alignment-elasticity → spotlight
 
+> ## POST-GATE-A REVISION (27 Aug) — supersedes the thesis below
+>
+> Gate A resolved: **verdict B with inverted sign.** Instruct's excess-d50 is 0.037
+> [-0.251, 0.237] vs ~1.0 for base/rlz-math/rlz-code; behavioural swing 1.00 -> 0.18,
+> the largest of any checkpoint. The deployed model is the EASIEST to steer per unit
+> boundary-relative displacement. So the paper is no longer the three-curves /
+> verbalizability thesis — it is the INSTRUMENT claim, per Carlini's "one singular
+> idea":
+>
+> **Fixed-dose steering interventions read distance-to-boundary as steering
+> resistance. Dose in boundary-relative units and published "steering decay"
+> reverses.**
+>
+> Everything in the paper connects to that or gets cut. Formation curves: cut
+> (ceded anyway). Monitors, J-space: cut (J-space is a follow-up). The three-curve
+> material survives only as motivation for why instruments disagree.
+>
+> ### Maximal-version gaps to close before writing (each ~cheap, all on one box)
+> 1. **Trajectory, not endpoints** — run the Gate A sweep on ~6 more checkpoints
+>    (SFT step1000/15000/43000, DPO, RLVR first/last). Does excess-d50 ~ 0 arrive
+>    abruptly with SFT like everything else? ~1 h GPU.
+> 2. **One non-safety control** — a sentiment direction through the identical
+>    sweep. Refusal-specific or general? ~20 min GPU.
+> 3. **The three-instruments figure** — fixed ablation (A1), input-norm dosing
+>    (persona-vectors parameterisation, which our sweep already uses — read off
+>    at their fixed c), boundary-relative dosing (Gate A). Same models, three
+>    instruments, three different rankings, one resolution. This is Figure 1.
+> 4. Self-contained captions; abstract with the 0.037-vs-0.98 numbers in it.
+>
+> ### Title/name
+> Rename per Ji et al. collision. Working options, instrument-first:
+> "Steering in the Wrong Units", "Boundary-Relative Dosing for Activation
+> Steering", "Distance to the Boundary Is Not Steering Resistance".
+>
+> ### Carlini checks
+> - De-risk: DONE (Gate A was exactly this).
+> - "Why is everyone doing this obviously wrong?": three published groups, three
+>   answers, one confound — yes.
+> - Conclusion so-what: steering-based safety evals mis-rank models; any audit
+>   that ablates a fixed direction understates a deployed model's steerability.
+> - Luck/timing: J-lens follow-up crowd is 7 weeks old; instrument critique is
+>   uncontested ground. Do not sit on it.
+
+
 **A concrete paper plan.** Supersedes the L4/L5 doc's framing in light of the OLMo landscape
 review (26 Aug) and the J-lens material already in the repo.
 
