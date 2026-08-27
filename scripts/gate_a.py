@@ -16,6 +16,7 @@ ASCII only. Importable as a plain module so it outlives the sandbox.
 import gc
 import hashlib
 import json
+import io
 import os
 import time
 
@@ -54,6 +55,9 @@ C_GRID = [
 C_GRID_NULL = list(C_GRID)
 # Appended one at a time if a model has still not reached 50% crossing.
 EXTRA_C = [-16.0, -20.0, -24.0, -32.0, -48.0]
+
+# Stages written into each sweep record; the resume guard requires all of them.
+STAGES = ["sweep", "null", "generation"]
 
 N_TRAIN = 200
 N_HELD = 200
@@ -333,9 +337,17 @@ def fifty_points(gaps, c_values, zero_index, target=0.5):
     # function of dose.
     d = np.asarray(disps, dtype=np.float64)
     r = np.asarray(rates, dtype=np.float64)
+    cc = np.abs(np.asarray(c_values, dtype=np.float64))
     if d.size and np.any(np.isfinite(d)):
-        peak = int(np.nanargmax(d))
-        d50 = _interp_at_half(d[:peak + 1], r[:peak + 1], target)
+        # Order by DOSE MAGNITUDE from zero outward. The stored grid is
+        # most-negative-first, so a plain prefix slice would take the region
+        # PAST saturation. In |c|-ascending order displacement rises with dose
+        # up to the peak and declines after it; the prefix up to that peak is
+        # the region where displacement is a function of dose.
+        order = np.argsort(cc, kind="stable")
+        d_o, r_o = d[order], r[order]
+        peak = int(np.nanargmax(d_o))
+        d50 = _interp_at_half(d_o[:peak + 1], r_o[:peak + 1], target)
     else:
         d50 = float("nan")
     return c50, d50
@@ -357,12 +369,19 @@ def bootstrap_fifty(gaps, c_values, zero_index, n_boot=1000, seed=SEED,
 
 
 def pct_ci(arr, alpha=0.05):
-    a = np.asarray(arr, dtype=np.float64)
-    a = a[np.isfinite(a)]
+    a0 = np.asarray(arr, dtype=np.float64)
+    n_total = int(a0.size)
+    a = a0[np.isfinite(a0)]
+    frac = float(a.size) / float(n_total) if n_total else 0.0
     if a.size == 0:
-        return {"lo": None, "hi": None, "n_finite": 0, "median": None}
+        return {"lo": None, "hi": None, "n_finite": 0, "n_total": n_total,
+                "finite_frac": frac, "reliable": False, "median": None}
     lo, hi = np.percentile(a, [100 * alpha / 2.0, 100 * (1 - alpha / 2.0)])
+    # A CI drawn from a small minority of finite replicates (most resamples
+    # never crossed) is not a CI for the quantity we think it is.
     return {"lo": float(lo), "hi": float(hi), "n_finite": int(a.size),
+            "n_total": n_total, "finite_frac": frac,
+            "reliable": bool(frac >= 0.8 and a.size >= 100),
             "median": float(np.median(a))}
 
 
@@ -466,6 +485,13 @@ def gate_a_worker(art=ART, ckpts=None, n_train=N_TRAIN, n_held=N_HELD,
     ckpts = ckpts or CKPTS
     c_grid = list(c_grid or C_GRID)
     c_grid_null = list(c_grid_null or C_GRID_NULL)
+    # If the main grid was extended past the default range, the null must cover
+    # the same doses or z-scores silently drop the extended coefficients and the
+    # null band stops short of the plotted curve.
+    for _c in c_grid:
+        if _c not in c_grid_null:
+            c_grid_null.append(_c)
+    c_grid_null = sorted(set(c_grid_null), reverse=True)
     pth = paths(art)
 
     def log(msg):
@@ -491,11 +517,26 @@ def gate_a_worker(art=ART, ckpts=None, n_train=N_TRAIN, n_held=N_HELD,
         v_mm = v_lr = None
         for label, repo, branch, commit in ckpts:
             out_path = pth["sweep"](label)
+            # The sweep record is written three times (sweep, null, generation).
+            # Existence alone means a mid-stage interruption is skipped forever
+            # and downstream analysis KeyErrors on the missing stage, so resume
+            # only when the record says every stage finished.
             if os.path.exists(out_path) and os.path.exists(pth["dirs_npz"]):
-                log("skip %s (artifact exists)" % label)
-                status["done"].append(label)
-                P.write_json(pth["status"], status)
-                continue
+                prior = P.read_json_or_none(out_path) if hasattr(
+                    P, "read_json_or_none") else None
+                if prior is None:
+                    try:
+                        with io.open(out_path, encoding="utf-8") as fh:
+                            prior = json.load(fh)
+                    except Exception:
+                        prior = None
+                if isinstance(prior, dict) and prior.get("stages_complete") == STAGES:
+                    log("skip %s (all stages complete)" % label)
+                    status["done"].append(label)
+                    P.write_json(pth["status"], status)
+                    continue
+                have = (prior or {}).get("stages_complete", [])
+                log("REDO %s (incomplete record; stages=%s)" % (label, have))
 
             status["stage"] = "load:" + label
             P.write_json(pth["status"], status)
@@ -510,6 +551,11 @@ def gate_a_worker(art=ART, ckpts=None, n_train=N_TRAIN, n_held=N_HELD,
             c_ids, c_single, c_dec = P.onset_token_ids(tok, P.COMPLY_STRS)
             d_model = int(model.config.hidden_size)
 
+            if label != "base" and not os.path.exists(pth["dirs_npz"]):
+                raise RuntimeError(
+                    "directions.npz missing at %s: base must be swept first "
+                    "(it fits the direction every other model reuses). Include "
+                    "'base' in ckpts, or restore the file." % pth["dirs_npz"])
             if label == "base" and not os.path.exists(pth["dirs_npz"]):
                 status["stage"] = "fit_directions"
                 P.write_json(pth["status"], status)
@@ -594,6 +640,7 @@ def gate_a_worker(art=ART, ckpts=None, n_train=N_TRAIN, n_held=N_HELD,
                 "unsteered gap %+.3f (%.0f%% refusing)"
                 % (label, c50_mm, d50_mm, c50_lr, d50_lr,
                    rec["unsteered_gap_mean"], 100 * rec["frac_refusing_unsteered"]))
+            rec["stages_complete"] = ['sweep']
             P.write_json(out_path, rec)
 
             status["stage"] = "null:" + label
@@ -613,6 +660,7 @@ def gate_a_worker(art=ART, ckpts=None, n_train=N_TRAIN, n_held=N_HELD,
             rec["random_reference"] = "unsteered_gap_per_prompt (c=0 is direction-free)"
             log("%s %d random directions x %d coefficients in %.1fs"
                 % (label, n_rand, len(c_grid_null), time.time() - t0))
+            rec["stages_complete"] = ['sweep', 'null']
             P.write_json(out_path, rec)
 
             if do_generation and np.isfinite(c50_mm):
@@ -663,6 +711,7 @@ def gate_a_worker(art=ART, ckpts=None, n_train=N_TRAIN, n_held=N_HELD,
                 rec["behavioural"] = {"skipped": "c50 not reached on the swept grid"}
 
             rec["elapsed_seconds"] = time.time() - t_all
+            rec["stages_complete"] = ['sweep', 'null', 'generation']
             P.write_json(out_path, rec)
             status["done"].append(label)
             P.write_json(pth["status"], status)

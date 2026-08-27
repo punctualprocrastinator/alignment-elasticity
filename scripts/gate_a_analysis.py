@@ -46,15 +46,25 @@ def arrays(rec, which="massmean"):
     return gaps, c, int(rec["zero_index_" + which])
 
 
-def fingerprint_check(recs):
-    """Aggregation refuses any result file whose split fingerprint disagrees."""
+def fingerprint_check(recs, strict=True):
+    """Refuse any result set whose split fingerprints or seeds disagree.
+
+    Paired bootstrap pairs prompt i of one model with prompt i of another; that
+    is only meaningful if both were evaluated on the SAME held-out split. The
+    previous version reported disagreement without enforcing it, and
+    `paired_bootstrap` checks only prompt COUNTS, so mismatched splits paired
+    silently. `strict=False` is for inspecting a known-mixed set, never for
+    producing numbers.
+    """
     fps = {lab: r["provenance"]["split_fingerprint"] for lab, r in recs.items()}
     seeds = {lab: r["provenance"]["seed"] for lab, r in recs.items()}
-    return {
-        "fingerprints": fps,
-        "seeds": seeds,
-        "all_agree": len(set(fps.values())) <= 1 and len(set(seeds.values())) <= 1,
-    }
+    agree = len(set(fps.values())) <= 1 and len(set(seeds.values())) <= 1
+    if strict and not agree:
+        raise ValueError(
+            "split fingerprint / seed mismatch across result files; paired "
+            "comparisons would pair different prompts. fingerprints=%r seeds=%r"
+            % (fps, seeds))
+    return {"fingerprints": fps, "seeds": seeds, "all_agree": agree}
 
 
 # ------------------------------------------------------------------ curves
@@ -244,7 +254,7 @@ def paired_bootstrap(recs, which="massmean", n_boot=1000, seed=ga.SEED,
 # ------------------------------------------------------------------ collapse
 
 
-def _interp_rate(x_vals, rates, grid):
+def _interp_rate(x_vals, rates, grid, dose=None):
     """Crossing rate on a common x axis. Duplicate x values are averaged, and
     the curve is evaluated only inside each model's own swept range."""
     x = np.asarray(x_vals, dtype=np.float64)
@@ -256,6 +266,15 @@ def _interp_rate(x_vals, rates, grid):
     # Displacement axes saturate and reverse, so the same x can occur at a low
     # dose and again past the peak. Averaging those two produces a rate no dose
     # actually produced. Keep the rising prefix, where x is a function of dose.
+    # Displacement axes saturate and reverse, so the same x occurs at a low dose
+    # and again past the peak; averaging those gives a rate no dose produced.
+    # Order by DOSE MAGNITUDE from zero outward and keep the rising prefix. The
+    # stored grid is most-negative-first, so slicing it directly would take the
+    # post-saturation region instead.
+    if dose is not None:
+        dd = np.abs(np.asarray(dose, dtype=np.float64))[ok]
+        order = np.argsort(dd, kind="stable")
+        x, y = x[order], y[order]
     peak = int(np.nanargmax(x))
     x, y = x[:peak + 1], y[:peak + 1]
     if x.size < 2:
@@ -288,19 +307,20 @@ def collapse_spread(recs, which="massmean", n_grid=25):
     Rc = np.vstack([_interp_rate(curves[l]["c"], curves[l]["rates"], c_grid)
                     for l in labels])
 
-    d_lo = max(float(np.nanmin(curves[l]["disps"])) for l in labels)
-    d_hi = min(float(np.nanmax(curves[l]["disps"])) for l in labels)
+    d_lo = max(float(np.nanmin(curves[l]["disps_med"])) for l in labels)
+    d_hi = min(float(np.nanmax(curves[l]["disps_med"])) for l in labels)
     # A shrinking comparison region shrinks the spread for reasons unrelated to
     # collapse. Base's maximum achievable displacement can sit BELOW a deeper
     # model's d_50 (Gate A finding 2), leaving a sliver or nothing at all.
-    d_widths = [float(np.nanmax(curves[l]["disps"]) - np.nanmin(curves[l]["disps"]))
-                for l in labels]
+    d_widths = [float(np.nanmax(curves[l]["disps_med"])
+                      - np.nanmin(curves[l]["disps_med"])) for l in labels]
     d_overlap = {"lo": d_lo, "hi": d_hi, "width": d_hi - d_lo,
                  "frac_of_narrowest": ((d_hi - d_lo) / min(d_widths)
                                        if min(d_widths) > 0 else 0.0),
                  "degenerate": bool(d_hi - d_lo <= 0)}
     d_grid = np.linspace(d_lo, d_hi, n_grid)
-    Rd = np.vstack([_interp_rate(curves[l]["disps"], curves[l]["rates"], d_grid)
+    Rd = np.vstack([_interp_rate(curves[l]["disps_med"], curves[l]["rates"],
+                                 d_grid, dose=curves[l]["c"])
                     for l in labels])
 
     r_lo = max(float(np.nanmin(curves[l]["disps_rel"])) for l in labels)
@@ -312,7 +332,8 @@ def collapse_spread(recs, which="massmean", n_grid=25):
                                        if min(r_widths) > 0 else 0.0),
                  "degenerate": bool(r_hi - r_lo <= 0)}
     r_grid = np.linspace(r_lo, r_hi, n_grid)
-    Rr = np.vstack([_interp_rate(curves[l]["disps_rel"], curves[l]["rates"], r_grid)
+    Rr = np.vstack([_interp_rate(curves[l]["disps_rel"], curves[l]["rates"],
+                                 r_grid, dose=curves[l]["c"])
                     for l in labels])
 
     def _spread(M):
@@ -388,15 +409,46 @@ def verdict(summary, spread_threshold=0.5):
     diffs = summary["bootstrap_massmean"]["diffs"]
     ex_diffs = {k: v for k, v in diffs.items() if k.startswith("d50excess:")}
     raw_diffs = {k: v for k, v in diffs.items() if k.startswith("d50:")}
-    sig = {k: v for k, v in ex_diffs.items() if v.get("excludes_zero")}
-    sig_raw = {k: v for k, v in raw_diffs.items() if v.get("excludes_zero")}
+
+    def _defined(v):
+        """An interval that does not exist is not an interval covering zero."""
+        return (v.get("lo") is not None and v.get("hi") is not None
+                and v.get("reliable", True))
+
+    undefined = {k: v for k, v in ex_diffs.items() if not _defined(v)}
+    ex_defined = {k: v for k, v in ex_diffs.items() if _defined(v)}
+    sig = {k: v for k, v in ex_defined.items() if v.get("excludes_zero")}
+    sig_raw = {k: v for k, v in raw_diffs.items()
+               if _defined(v) and v.get("excludes_zero")}
 
     coll = summary["collapse_massmean"]
     red = coll.get("spread_reduction_rel")
     red_raw = coll.get("spread_reduction")
     collapsed = (red is not None) and (red >= spread_threshold)
+    trustworthy = bool(coll.get("spread_trustworthy", True))
 
-    if not sig and collapsed:
+    if undefined:
+        outcome = "INDETERMINATE"
+        stmt = ("INDETERMINATE. %d of %d pairwise d_50-excess intervals are "
+                "undefined or unreliable (%s) - typically because a model never "
+                "reached 50%% crossing within the swept dose range, so no d_50 "
+                "exists to difference. An undefined interval is not an interval "
+                "covering zero; extend the coefficient grid for those models, or "
+                "report them as non-crossing, before reading a verdict."
+                % (len(undefined), len(ex_diffs),
+                   ", ".join(k[10:] for k in sorted(undefined))))
+    elif not sig and collapsed and not trustworthy:
+        outcome = "A-untrustworthy"
+        stmt = ("Spread falls by %.0f%%, but the comparison region is too "
+                "narrow to trust: displacement overlap is %.1f%% of the "
+                "narrowest model's range and only %.0f%% of grid columns have "
+                "two or more models present. A spread measured over a sliver "
+                "shrinks for reasons unrelated to collapse. Widen the dose "
+                "range so the models overlap before claiming Outcome A."
+                % (100 * red,
+                   100 * coll.get("overlap_disp_rel", {}).get("frac_of_narrowest", 0.0),
+                   100 * coll.get("coverage_by_disp_rel", 0.0)))
+    elif not sig and collapsed:
         outcome = "A"
         stmt = ("OUTCOME A. The apparent steering collapse is an artifact of "
                 "baseline distance to the boundary. Once dose is expressed as "
@@ -410,8 +462,11 @@ def verdict(summary, spread_threshold=0.5):
         outcome = "B"
         stmt = ("OUTCOME B. A residual effect survives boundary-matched dosing: "
                 + "; ".join(
-                    "%s excess-d_50 diff %.3f [%.3f, %.3f]"
-                    % (k[10:], v["point"], v["lo"], v["hi"])
+                    "%s excess-d_50 diff %s [%.3f, %.3f]"
+                    % (k[10:],
+                       ("%.3f" % v["point"]) if v.get("point") is not None
+                       else "n/a (full-sample d_50 undefined)",
+                       v["lo"], v["hi"])
                     for k, v in sig.items())
                 + ". These models cross less even at equal displacement past "
                   "their own boundary, so post-training changed more than the "
