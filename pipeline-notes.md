@@ -749,12 +749,35 @@ Ties to Gate A: base + both RL-Zero (no SFT) sit at excess ~1.0; every SFT-
 descended model sits at ~0. **The boundary shift is an SFT event.**
 All fingerprints 99a7ac88; base reproduced Gate A exactly.
 
-**GAP 2 — sentiment control: NOT RUN (never got GPU).** The one open scientific
-question (safety-specific vs general boundary effect). `gate_a_sentiment.py`
-authored + byte-verified local; SST-2 L20 direction, pos/neg readout ids
-documented. Remaining fresh-box work ~60 min: base + 4 Think checkpoints
-(sft-43000 aaf125a4, dpo 7b18bf92, rlvr-first 817b9d38, rlvr-last 03124069)
-to finish the 7-point trajectory, plus sentiment on base+Instruct.
+**GAP 2 — sentiment control: DONE (2026-08-28). Effect is SAFETY-SPECIFIC.**
+Excess-d50 (mass-mean): sentiment base **-0.114 [-0.193, -0.041]**, Instruct
+**-0.256 [-0.502, -0.145]**, base-Instruct diff +0.143 [0.008, 0.383].
+Beside refusal (base 0.979 [0.662, 1.273], Instruct 0.037 [-0.251, 0.237], diff
++0.942 [0.564, 1.375]): **sentiment has NO elevated base excess** — the defining
+~1-logit base overshoot of the refusal result is absent, and the base->Instruct
+change is same-sign but ~6x smaller. Logistic agrees (diff +0.233 [0.041,
+0.503]). Honest nuance: the sentiment base-Instruct diff narrowly excludes zero,
+so "far weaker", not "literally zero". Interpretation: the excess is a property
+of the REFUSAL direction, not of activation steering in general. On base the
+diff-in-means refusal direction is a good probe but an inefficient STEERING axis
+(needs ~1 logit of overshoot past the boundary); SFT aligns probe and control
+axes, abruptly. Sentiment split fingerprint 23b35701 (SST-2's own; the 99a7ac88
+invariant governs the refusal runs).
+
+**GAP 1 — 7-point trajectory: DONE. ABRUPT-AT-SFT, flat afterward.**
+Excess-d50 (mass-mean): base 0.979 [0.662, 1.273] -> sft-1k -0.032 -> sft-15k
+0.013 -> sft-43k -0.054 -> dpo -0.063 -> rlvr-first -0.125 -> rlvr-last -0.054.
+base-vs-sft1k +1.011 [0.642, 1.390] (excludes 0); every post-SFT CI covers zero;
+flat through DPO and both RLVR steps; logistic agrees; no indeterminate point.
+base reproduced Gate A EXACTLY (excess 0.979, d50 1.515, c50 -0.272), confirming
+directions.npz is deterministic and transformers 5.14 adds no drift. All 7 carry
+fingerprint 99a7ac88; 4 pinned commits verified.
+
+**Ties to Gate A endpoints:** base + both RL-Zero (no SFT) sit at excess ~1.0;
+every SFT-descended model at ~0. The refusal probe/steering realignment IS the
+SFT event. **The paper is now empirically complete.** Deviation: no behavioural
+generation for the 4 new trajectory points (excess-d50 needs only the sweep;
+base reproduced exactly, so the reused SFT points are consistent).
 
 ## Gate A COMPLETE (2026-08-27) — the steering "decay" INVERTS under dose matching
 

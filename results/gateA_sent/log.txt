@@ -1,0 +1,111 @@
+20:31:47 loading allenai/Olmo-3-1025-7B @ main (a81bae42db)
+20:32:30 loaded base in 43.5s
+20:32:30 split fingerprint 23b35701a03918501f65d7f87748ed33ffc92718 | pos_train 200 neg_train 200 pos_held 200
+20:32:45 sentiment dir: massmean norm 2.724 | logistic n_iter 520 acc 0.995 | cos 0.5429
+20:32:45 base mu_L20 = 27.337 (all-token)
+20:32:45 base sweeping MASS-MEAN sentiment direction
+20:32:46     c=-12.00 mean_gap=-14.8970
+20:32:47     c=-10.00 mean_gap=-14.4049
+20:32:47     c=-8.00 mean_gap=-13.6494
+20:32:48     c=-7.00 mean_gap=-13.1283
+20:32:48     c=-6.00 mean_gap=-12.4385
+20:32:49     c=-5.00 mean_gap=-11.4951
+20:32:49     c=-4.50 mean_gap=-10.8713
+20:32:50     c=-4.00 mean_gap=-10.0913
+20:32:50     c=-3.50 mean_gap=-9.1498
+20:32:51     c=-3.00 mean_gap=-8.0008
+20:32:52     c=-2.50 mean_gap=-6.6417
+20:32:52     c=-2.00 mean_gap=-5.2464
+20:32:53     c=-1.75 mean_gap=-4.5917
+20:32:53     c=-1.50 mean_gap=-3.9750
+20:32:54     c=-1.25 mean_gap=-3.5481
+20:32:54     c=-1.00 mean_gap=-3.4448
+20:32:55     c=-0.75 mean_gap=-3.4639
+20:32:55     c=-0.50 mean_gap=-3.0129
+20:32:56     c=-0.25 mean_gap=-1.1599
+20:32:57     c=+0.00 mean_gap=+1.4255
+20:32:57     c=+0.25 mean_gap=+3.5523
+20:32:58     c=+0.50 mean_gap=+6.0540
+20:32:58     c=+1.00 mean_gap=+8.5192
+20:32:58 base sweeping LOGISTIC sentiment direction
+20:32:59     c=-12.00 mean_gap=-10.0951
+20:32:59     c=-10.00 mean_gap=-9.7585
+20:33:00     c=-8.00 mean_gap=-9.2596
+20:33:00     c=-7.00 mean_gap=-8.9130
+20:33:01     c=-6.00 mean_gap=-8.4690
+20:33:01     c=-5.00 mean_gap=-7.8631
+20:33:02     c=-4.50 mean_gap=-7.4849
+20:33:03     c=-4.00 mean_gap=-7.0214
+20:33:03     c=-3.50 mean_gap=-6.4553
+20:33:04     c=-3.00 mean_gap=-5.7560
+20:33:04     c=-2.50 mean_gap=-4.8490
+20:33:05     c=-2.00 mean_gap=-3.6848
+20:33:05     c=-1.75 mean_gap=-3.0387
+20:33:06     c=-1.50 mean_gap=-2.4470
+20:33:06     c=-1.25 mean_gap=-2.0828
+20:33:07     c=-1.00 mean_gap=-2.2763
+20:33:07     c=-0.75 mean_gap=-2.7558
+20:33:08     c=-0.50 mean_gap=-1.9158
+20:33:09     c=-0.25 mean_gap=+0.2436
+20:33:09     c=+0.00 mean_gap=+1.4255
+20:33:10     c=+0.25 mean_gap=+2.7406
+20:33:10     c=+0.50 mean_gap=+4.4310
+20:33:11     c=+1.00 mean_gap=+5.9818
+20:33:11 base massmean c50=-0.126 d50=1.295 | median gap0 1.409 | 100% positive-leaning
+20:37:23 base done
+20:37:32 base purged 14.60 GB
+20:37:32 loading allenai/Olmo-3-7B-Instruct @ main (6e5971d9eb)
+20:38:05 loaded instruct in 33.2s
+20:38:05 instruct mu_L20 = 25.024 (all-token)
+20:38:05 instruct sweeping MASS-MEAN sentiment direction
+20:38:06     c=-12.00 mean_gap=-13.7686
+20:38:06     c=-10.00 mean_gap=-13.2674
+20:38:07     c=-8.00 mean_gap=-12.4984
+20:38:07     c=-7.00 mean_gap=-11.9477
+20:38:08     c=-6.00 mean_gap=-11.2102
+20:38:09     c=-5.00 mean_gap=-10.1853
+20:38:09     c=-4.50 mean_gap=-9.5325
+20:38:10     c=-4.00 mean_gap=-8.7746
+20:38:10     c=-3.50 mean_gap=-7.9162
+20:38:11     c=-3.00 mean_gap=-6.9174
+20:38:11     c=-2.50 mean_gap=-5.7709
+20:38:12     c=-2.00 mean_gap=-4.5613
+20:38:12     c=-1.75 mean_gap=-3.9381
+20:38:13     c=-1.50 mean_gap=-3.3180
+20:38:13     c=-1.25 mean_gap=-2.8535
+20:38:14     c=-1.00 mean_gap=-2.7352
+20:38:14     c=-0.75 mean_gap=-2.7587
+20:38:15     c=-0.50 mean_gap=-2.4863
+20:38:15     c=-0.25 mean_gap=-0.9085
+20:38:16     c=+0.00 mean_gap=+1.9822
+20:38:16     c=+0.25 mean_gap=+3.0827
+20:38:17     c=+0.50 mean_gap=+4.4094
+20:38:18     c=+1.00 mean_gap=+7.4836
+20:38:18 instruct sweeping LOGISTIC sentiment direction
+20:38:18     c=-12.00 mean_gap=-9.3046
+20:38:19     c=-10.00 mean_gap=-8.9717
+20:38:19     c=-8.00 mean_gap=-8.4719
+20:38:20     c=-7.00 mean_gap=-8.1263
+20:38:20     c=-6.00 mean_gap=-7.6812
+20:38:21     c=-5.00 mean_gap=-7.0991
+20:38:21     c=-4.50 mean_gap=-6.7446
+20:38:22     c=-4.00 mean_gap=-6.3386
+20:38:22     c=-3.50 mean_gap=-5.8664
+20:38:23     c=-3.00 mean_gap=-5.3182
+20:38:23     c=-2.50 mean_gap=-4.6602
+20:38:24     c=-2.00 mean_gap=-3.8464
+20:38:24     c=-1.75 mean_gap=-3.4275
+20:38:25     c=-1.50 mean_gap=-3.1150
+20:38:26     c=-1.25 mean_gap=-3.0540
+20:38:26     c=-1.00 mean_gap=-3.2553
+20:38:27     c=-0.75 mean_gap=-3.1848
+20:38:27     c=-0.50 mean_gap=-2.2042
+20:38:28     c=-0.25 mean_gap=+0.3221
+20:38:28     c=+0.00 mean_gap=+1.9822
+20:38:29     c=+0.25 mean_gap=+2.7317
+20:38:29     c=+0.50 mean_gap=+3.5824
+20:38:30     c=+1.00 mean_gap=+6.0879
+20:38:30 instruct massmean c50=-0.147 d50=1.712 | median gap0 1.969 | 94% positive-leaning
+20:42:34 instruct done
+20:42:43 instruct purged 14.60 GB
+20:42:43 === SENTIMENT done in 660.3s
