@@ -715,6 +715,55 @@ unvalidated) + ~25 min analysis. Drop order if tight: `sft-main` and `rlvr-50`
 first, leaving base -> sft-1k -> sft-10790 -> dpo -> rlvr-750 (still shows
 cliff-then-flat, loses the RLVR-drift contrast).
 
+## Gate A, partial (2026-08-27) — box reclaimed at 2/4 models, but the design changed
+
+Sandbox reclaimed mid-`generate:instruct`. **No result files survived** — artifacts were written
+to sandbox disk but pulled only at the end, and the reclaim ate them. Numbers below are read off
+the kernel progress log: **point estimates only, no CIs, no null band, no RL-Zero arm.**
+Restore assets are complete on disk (`scripts/gate_a.py`, `scripts/gate_a_analysis.py`,
+`scripts/notebook_cells/gateA_01..12_*.py`); a full 4-model rerun is ~30 min GPU + ~5 min setup.
+Commits pinned: base `a81bae42`, Instruct `6e5971d9`, RL-Zero-Math step_1900 `81823671`,
+RL-Zero-Code step_2900 `ea18fc74`.
+
+| model | unsteered gap | % refusing | c_50 (mass-mean) | d_50 (mass-mean) | d_50 (logistic) |
+|---|---|---|---|---|---|
+| base | +0.812 | 64% | -0.272 | 1.511 | 1.532 |
+| instruct | +7.745 | 100% | -1.224 | 7.886 | 7.934 |
+
+### Finding 1 — d_50 is mechanically pinned to baseline depth. **The brief's null was wrong.**
+To push the median prompt across zero you must displace it by roughly its own baseline gap:
+base d_50 1.511 vs mean gap 0.812; instruct d_50 7.886 vs mean gap 7.745. So "equal raw d_50
+across models" is not the no-residual-effect null — it is close to unachievable by construction.
+**The correct boundary-relative statistic is `d_50 - median(unsteered gap)`** — the *excess*
+displacement a model costs over and above its own distance to the boundary. On that axis:
+**base ~0.70, instruct ~0.14** — i.e. Instruct is, if anything, *easier* to move than base.
+That points toward **Outcome A (the steering "decay" is a baseline-distance artifact)**, but
+with n=2 models, no CIs, and mean standing in for median, it is indicative, not a result.
+
+### Finding 2 — achieved displacement SATURATES AND REVERSES
+Base mass-mean mean-gap by coefficient: c=-1.5 -> -5.498 (peak displacement ~6.31), c=-2 ->
+-5.432, c=-4 -> -5.024, c=-12 -> -4.568. **Pushing harder past c~-1.5 buys less displacement.**
+Consequences: (i) "extend c until every model crosses" is not always achievable — a deep-enough
+model exhausts the grid instead of crossing; (ii) base's *maximum* achievable displacement
+(~6.3) is **below Instruct's d_50 (7.886)**, so the two models barely overlap on the raw
+displacement axis and any collapse test there is partly extrapolation. Both figures and the
+verdict must state the overlap region explicitly.
+
+### Finding 3 — mass-mean and logistic directions differ but dose alike
+`cos(mass-mean, logistic) = 0.7388` at base L20, yet near-identical d_50 (1.511 vs 1.532).
+Mass-mean reaches d_50 at smaller |c| (-0.272 vs -0.369) — mildly more dose-efficient,
+consistent with Marks & Tegmark, but small and uncertained.
+
+Behavioural (base only, 40 prompts, greedy 512 tok, at its own c_50): refusal 0.78 -> 0.60;
+unclosed `<think>` 0.00. Smoke tests 5/5 pass. Logistic converged in 84 iterations at tol=1e-10.
+
+**Deviations:** SEED=42 per P1, so the held-out split differs from A1's (split seed 0) — Gate A
+numbers are NOT prompt-matched to A1. Dense 23-point c grid. Behavioural n=40 (below P2's 100;
+raise on rerun, ~+2 min/model). The production split fingerprint was logged but never captured.
+
+**Process lesson (cost us the data): pull each artifact THE MOMENT it lands, not at the end.**
+Base finished ~2h before the reclaim and sat un-pulled.
+
 ## Sandbox mortality (2026-08-07) — treat as a design constraint
 
 **Two boxes were reclaimed within hours**, both returning HTTP 410
