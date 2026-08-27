@@ -1,0 +1,72 @@
+{
+ "status": "PARTIAL - box reclaimed (HTTP 410) after 3/7 checkpoints",
+ "order": [
+  "base",
+  "think-sft-1000",
+  "think-sft-15000"
+ ],
+ "fingerprint": "99a7ac88967302166d6e1698d1eebae8d2fd9576",
+ "excess_d50": {
+  "base": {
+   "point": 0.9789542555809021,
+   "ci": [
+    0.6621920884797268,
+    1.2730306693748579
+   ],
+   "median_gap0": 0.5364584922790527,
+   "d50": 1.5154127478599548
+  },
+  "think-sft-1000": {
+   "point": -0.031575775146484464,
+   "ci": [
+    -0.2752870668117452,
+    0.16234973562780586
+   ],
+   "median_gap0": 3.8958334922790527,
+   "d50": 3.8642577171325683
+  },
+  "think-sft-15000": {
+   "point": 0.013194274902343928,
+   "ci": [
+    -0.17622806795769297,
+    0.15669707833002522
+   ],
+   "median_gap0": 5.192708730697632,
+   "d50": 5.205903005599976
+  }
+ },
+ "diffs": {
+  "d50excess:base-think-sft-1000": {
+   "point": 1.0105300307273866,
+   "ci": [
+    0.6424639066329854,
+    1.390313225496842
+   ],
+   "excludes_zero": true
+  },
+  "d50excess:base-think-sft-15000": {
+   "point": 0.9657599806785582,
+   "ci": [
+    0.6448144784081239,
+    1.3236015904003984
+   ],
+   "excludes_zero": true
+  },
+  "d50excess:think-sft-1000-think-sft-15000": {
+   "point": -0.04477005004882839,
+   "ci": [
+    -0.31788764773830386,
+    0.21865475976019844
+   ],
+   "excludes_zero": false
+  }
+ },
+ "verdict": "abrupt-at-SFT: excess-d50 collapses base->SFT1k (diff excludes 0), flat SFT1k->SFT15k",
+ "pending": [
+  "think-sft-43000",
+  "think-dpo",
+  "think-rlvr-first",
+  "think-rlvr-last",
+  "GAP2-sentiment"
+ ]
+}

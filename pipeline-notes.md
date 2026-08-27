@@ -715,6 +715,47 @@ unvalidated) + ~25 min analysis. Drop order if tight: `sft-main` and `rlvr-50`
 first, leaving base -> sft-1k -> sft-10790 -> dpo -> rlvr-750 (still shows
 cliff-then-flat, loses the RLVR-drift contrast).
 
+## Gate A maximal-version gaps (2026-08-28) — Figure 1 done, trajectory abrupt
+
+Closing the three gaps a reviewer would name. Box died at 3/7 trajectory
+checkpoints (mid-generate think-sft-43000), but incremental pulls kept
+everything: 3 trajectory points WITH CIs plus Figure 1 are safe on disk.
+Note: `run_in_background` pollers are killed at each turn boundary in this
+environment — poll+pull INLINE within a working turn, not via a detached task.
+
+**GAP 3 — Figure 1 DONE** (`fig_threeInstruments.png`). Same 4 models, three
+instruments, three DIFFERENT rankings:
+- (a) fixed ablation: rlz-math > base > rlz-code > **instruct (LAST)**
+- (b) input-norm dose (c=-0.5): rlz-code > base > rlz-math > **instruct (LAST)**
+- (c) boundary-relative excess-d50: **instruct (FIRST)** > rlz-code > base > rlz-math
+Instruct inverts last->first; only (c) is boundary-fair. This is the paper in
+one figure.
+
+**GAP 1 — trajectory 3/7, verdict already decisive: ABRUPT AT SFT.**
+Computed with the unmodified reviewed paired_bootstrap (1000 resamples):
+
+| checkpoint | median gap | d50 | **excess-d50 [95% CI]** |
+|---|---|---|---|
+| base | 0.536 | 1.515 | **0.979 [0.662, 1.273]** |
+| think-sft-1000 | 3.896 | 3.864 | **-0.032 [-0.275, 0.162]** |
+| think-sft-15000 | 5.193 | 5.206 | **0.013 [-0.176, 0.157]** |
+
+base-vs-SFT1k diff **+1.011 [0.642, 1.390]** (excludes 0); SFT1k-vs-SFT15k
+-0.045 [-0.318, 0.219] (covers 0). Excess-d50 collapses ~1.0 -> ~0 entirely at
+the FIRST logged SFT step while boundary DISTANCE climbs 0.54 -> 3.90 -> 5.19.
+Same cliff-then-flat signature as every other geometry metric here. Behavioural
+(own c50): base 0.78->0.60, SFT1k 1.00->0.35, SFT15k 0.98->0.05.
+Ties to Gate A: base + both RL-Zero (no SFT) sit at excess ~1.0; every SFT-
+descended model sits at ~0. **The boundary shift is an SFT event.**
+All fingerprints 99a7ac88; base reproduced Gate A exactly.
+
+**GAP 2 — sentiment control: NOT RUN (never got GPU).** The one open scientific
+question (safety-specific vs general boundary effect). `gate_a_sentiment.py`
+authored + byte-verified local; SST-2 L20 direction, pos/neg readout ids
+documented. Remaining fresh-box work ~60 min: base + 4 Think checkpoints
+(sft-43000 aaf125a4, dpo 7b18bf92, rlvr-first 817b9d38, rlvr-last 03124069)
+to finish the 7-point trajectory, plus sentiment on base+Instruct.
+
 ## Gate A COMPLETE (2026-08-27) — the steering "decay" INVERTS under dose matching
 
 4/4 checkpoints, 33.9 min, every artifact pulled and sha1-verified as it landed.
