@@ -248,7 +248,7 @@ def sweep_with_extension(model, tokenizer, prompts, direction, mu, c_values,
                       r_ids, c_ids, batch_size=batch_size, log=log)
     c_used = list(c_values)
     for ce in extra:
-        rates, _d, _n = curve_from_gaps(gaps, c_used, c_used.index(0.0))
+        rates, _d, _dm, _n = curve_from_gaps(gaps, c_used, c_used.index(0.0))
         best = float(np.nanmax(rates)) if np.isfinite(rates).any() else 0.0
         if best >= target:
             break
@@ -283,13 +283,20 @@ def curve_from_gaps(gaps, c_values, zero_index):
     compliance, matching A1's `delta = intact - ablated` convention.
     """
     g0 = gaps[zero_index]
-    rates, disps, n_elig = [], [], 0
+    rates, disps, disps_med, n_elig = [], [], [], 0
     for i in range(gaps.shape[0]):
         r, n = crossing_rate(gaps[i], g0)
         rates.append(r)
         n_elig = n
         disps.append(float((g0 - gaps[i]).mean()))
-    return np.asarray(rates), np.asarray(disps), n_elig
+        # MEDIAN per-prompt displacement. The boundary-relative axis subtracts
+        # the MEDIAN unsteered gap, so the displacement must also be a median
+        # or the two are inconsistent by a model-dependent amount under
+        # per-prompt heterogeneity -- which biases d50_excess, the decisive
+        # statistic. Mean is retained for continuity with A1 reporting.
+        disps_med.append(float(np.median(g0 - gaps[i])))
+    return (np.asarray(rates), np.asarray(disps),
+            np.asarray(disps_med), n_elig)
 
 
 def _interp_at_half(x_vals, rates, target=0.5):
@@ -315,11 +322,22 @@ def _interp_at_half(x_vals, rates, target=0.5):
 def fifty_points(gaps, c_values, zero_index, target=0.5):
     """(c_50, d_50): the coefficient and the achieved displacement at which
     half of the eligible prompts have crossed the boundary."""
-    rates, disps, _n = curve_from_gaps(gaps, c_values, zero_index)
+    rates, _disps_mean, disps, _n = curve_from_gaps(gaps, c_values, zero_index)
     # c is swept negative-toward-compliance, so order on -c for monotonicity
     c50_neg = _interp_at_half([-c for c in c_values], rates, target)
-    d50 = _interp_at_half(disps, rates, target)
     c50 = float("nan") if not np.isfinite(c50_neg) else -c50_neg
+    # Achieved displacement SATURATES and then REVERSES at large |c| (Gate A
+    # finding 2). _interp_at_half sorts on its x-axis, so on the full curve it
+    # can pair a low-dose crossing rate with a saturated high-dose
+    # displacement. Restrict to the rising prefix, where displacement is a
+    # function of dose.
+    d = np.asarray(disps, dtype=np.float64)
+    r = np.asarray(rates, dtype=np.float64)
+    if d.size and np.any(np.isfinite(d)):
+        peak = int(np.nanargmax(d))
+        d50 = _interp_at_half(d[:peak + 1], r[:peak + 1], target)
+    else:
+        d50 = float("nan")
     return c50, d50
 
 
@@ -561,8 +579,8 @@ def gate_a_worker(art=ART, ckpts=None, n_train=N_TRAIN, n_held=N_HELD,
             rec["zero_coeff_max_abs_diff"] = float(
                 np.abs(gaps_mm[zi_mm] - gaps_lr[zi_lr]).max())
 
-            rates_mm, disps_mm, n_elig = curve_from_gaps(gaps_mm, c_mm, zi_mm)
-            rates_lr, disps_lr, _ = curve_from_gaps(gaps_lr, c_lr, zi_lr)
+            rates_mm, disps_mm, dmed_mm, n_elig = curve_from_gaps(gaps_mm, c_mm, zi_mm)
+            rates_lr, disps_lr, dmed_lr, _ = curve_from_gaps(gaps_lr, c_lr, zi_lr)
             rec["n_eligible"] = int(n_elig)
             rec["curve_massmean"] = {"c": c_mm, "rates": rates_mm.tolist(),
                                      "disps": disps_mm.tolist()}

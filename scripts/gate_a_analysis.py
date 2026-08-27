@@ -71,10 +71,14 @@ def curve(rec, which="massmean"):
     the curves to coincide; raw `disps` is mechanically tied to baseline depth.
     """
     gaps, c, zi = arrays(rec, which)
-    rates, disps, n_elig = ga.curve_from_gaps(gaps, c, zi)
+    rates, disps, disps_med, n_elig = ga.curve_from_gaps(gaps, c, zi)
     med0 = float(np.median(gaps[zi]))
-    return {"c": c, "rates": rates, "disps": disps,
-            "disps_rel": disps - med0, "median_gap0": med0,
+    # disps_rel MUST be built from the median displacement: it is compared
+    # against a median baseline gap, and mixing a mean displacement with a
+    # median gap makes d50_excess non-zero even under no residual effect, by a
+    # model-dependent amount. `disps` (mean) is kept for continuity only.
+    return {"c": c, "rates": rates, "disps": disps, "disps_med": disps_med,
+            "disps_rel": disps_med - med0, "median_gap0": med0,
             "n_eligible": n_elig, "unsteered_gap": float(gaps[zi].mean())}
 
 
@@ -247,12 +251,23 @@ def _interp_rate(x_vals, rates, grid):
     y = np.asarray(rates, dtype=np.float64)
     ok = np.isfinite(x) & np.isfinite(y)
     x, y = x[ok], y[ok]
+    if x.size < 2:
+        return np.full(np.shape(grid), np.nan, dtype=np.float64)
+    # Displacement axes saturate and reverse, so the same x can occur at a low
+    # dose and again past the peak. Averaging those two produces a rate no dose
+    # actually produced. Keep the rising prefix, where x is a function of dose.
+    peak = int(np.nanargmax(x))
+    x, y = x[:peak + 1], y[:peak + 1]
+    if x.size < 2:
+        return np.full(np.shape(grid), np.nan, dtype=np.float64)
     order = np.argsort(x)
     x, y = x[order], y[order]
     ux, inv = np.unique(x, return_inverse=True)
     uy = np.zeros_like(ux)
     for i in range(ux.size):
         uy[i] = y[inv == i].mean()
+    if ux.size < 2:
+        return np.full(np.shape(grid), np.nan, dtype=np.float64)
     out = np.interp(grid, ux, uy, left=np.nan, right=np.nan)
     out[(grid < ux.min()) | (grid > ux.max())] = np.nan
     return out
@@ -275,21 +290,45 @@ def collapse_spread(recs, which="massmean", n_grid=25):
 
     d_lo = max(float(np.nanmin(curves[l]["disps"])) for l in labels)
     d_hi = min(float(np.nanmax(curves[l]["disps"])) for l in labels)
+    # A shrinking comparison region shrinks the spread for reasons unrelated to
+    # collapse. Base's maximum achievable displacement can sit BELOW a deeper
+    # model's d_50 (Gate A finding 2), leaving a sliver or nothing at all.
+    d_widths = [float(np.nanmax(curves[l]["disps"]) - np.nanmin(curves[l]["disps"]))
+                for l in labels]
+    d_overlap = {"lo": d_lo, "hi": d_hi, "width": d_hi - d_lo,
+                 "frac_of_narrowest": ((d_hi - d_lo) / min(d_widths)
+                                       if min(d_widths) > 0 else 0.0),
+                 "degenerate": bool(d_hi - d_lo <= 0)}
     d_grid = np.linspace(d_lo, d_hi, n_grid)
     Rd = np.vstack([_interp_rate(curves[l]["disps"], curves[l]["rates"], d_grid)
                     for l in labels])
 
     r_lo = max(float(np.nanmin(curves[l]["disps_rel"])) for l in labels)
     r_hi = min(float(np.nanmax(curves[l]["disps_rel"])) for l in labels)
+    r_widths = [float(np.nanmax(curves[l]["disps_rel"]) - np.nanmin(curves[l]["disps_rel"]))
+                for l in labels]
+    r_overlap = {"lo": r_lo, "hi": r_hi, "width": r_hi - r_lo,
+                 "frac_of_narrowest": ((r_hi - r_lo) / min(r_widths)
+                                       if min(r_widths) > 0 else 0.0),
+                 "degenerate": bool(r_hi - r_lo <= 0)}
     r_grid = np.linspace(r_lo, r_hi, n_grid)
     Rr = np.vstack([_interp_rate(curves[l]["disps_rel"], curves[l]["rates"], r_grid)
                     for l in labels])
 
     def _spread(M):
+        # A grid column with fewer than two models present is not a spread.
+        M = np.asarray(M, dtype=np.float64)
+        n_present = np.sum(np.isfinite(M), axis=0)
         s = np.nanmax(M, axis=0) - np.nanmin(M, axis=0)
+        s[n_present < 2] = np.nan
         return s
 
+    def _coverage(M):
+        M = np.asarray(M, dtype=np.float64)
+        return float(np.mean(np.sum(np.isfinite(M), axis=0) >= 2))
+
     sc, sd, sr = _spread(Rc), _spread(Rd), _spread(Rr)
+    cov_c, cov_d, cov_r = _coverage(Rc), _coverage(Rd), _coverage(Rr)
     return {
         "which": which,
         "labels": labels,
@@ -311,6 +350,18 @@ def collapse_spread(recs, which="massmean", n_grid=25):
         "spread_reduction": (float(1.0 - np.nanmean(sd) / np.nanmean(sc))
                              if np.nanmean(sc) > 0 else None),
         "displacement_overlap": [float(d_lo), float(d_hi)],
+        # Diagnostics: a spread computed over a sliver of overlap, or over grid
+        # columns where only one model is present, is not evidence of collapse.
+        "overlap_disp": d_overlap,
+        "overlap_disp_rel": r_overlap,
+        "coverage_by_c": cov_c,
+        "coverage_by_disp": cov_d,
+        "coverage_by_disp_rel": cov_r,
+        "spread_trustworthy": bool(
+            (not d_overlap["degenerate"]) and (not r_overlap["degenerate"])
+            and d_overlap["frac_of_narrowest"] >= 0.25
+            and r_overlap["frac_of_narrowest"] >= 0.25
+            and cov_d >= 0.5 and cov_r >= 0.5),
     }
 
 
