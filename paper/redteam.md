@@ -77,3 +77,48 @@ claim becomes distribution-free and unattackable. All data is already on disk.
    "refusal-specific" or "safety-concepts-general"? ~30 min.
 4. Finer early-SFT checkpoints (if any < step 1000 exist) to earn the word "abrupt".
 5. Layer robustness of the misranking (extraction at 3 more layers).
+
+---
+
+# RESOLUTION (2026-08-29): the distribution-free core is EFFICACY-INVARIANCE
+
+Two zero-GPU re-analyses run.
+
+**1. Gap-matched steerability FAILS by construction — and that failure is informative.**
+Post-SFT models have essentially NO prompts in a near-boundary band (they all sit at
+gap 3.9–7.9), so base and Instruct have no overlapping starting distances to match. You
+cannot compare them "at matched distance" because the aligned model has no near-boundary
+prompts. Among the models that DO have band prompts (base, rlz-math, rlz-code), crossing
+coefficient is identical (~0.14). So "matched-distance equality" is unprovable for the
+base-vs-aligned comparison, and must NOT be claimed.
+
+**2. Steering EFFICACY is invariant; only the MARGIN changes. THIS is the paper.**
+Displacement produced per unit dose (slope of mean displacement vs |c|, near-zero region):
+
+| quantity | range across all 10 checkpoints |
+|---|---|
+| unsteered margin | 0.81 .. 7.75  (**9.5x**) |
+| steering efficacy | 3.63 .. 5.61  (**1.54x**, CV 0.127) |
+
+The base refusal direction delivers nearly constant displacement per unit dose across the
+ENTIRE flow (efficacy CV 0.13) while the margin it must overcome grows ~10x. Every model
+clears the random-direction null (z 4–7) and every generation-tested model crosses
+behaviourally. **The direction never goes stale as a control axis; the target moves.**
+Fixed-magnitude ablation / fixed-c steering fail on aligned models for one reason: a fixed
+push is now small relative to a 10x-larger margin.
+
+## The rebuilt paper (distribution-free, no excess-d50 as headline)
+- **Claim:** the base refusal direction's per-dose steering efficacy is invariant across
+  pretraining -> SFT -> DPO -> RLVR (CV 0.13); what grows is the behavioural margin (9.5x).
+  Fixed-magnitude steering/ablation audits therefore mis-read aligned models as
+  "un-steerable" when the direction is in fact undiminished — the error is entirely the
+  margin, and it grows with alignment.
+- **Figure 1:** three instruments, three rankings (unchanged — still the hook).
+- **Figure 2 (rebuilt):** efficacy (flat) vs margin (rising 10x) across the flow, twin axis.
+  Replaces the excess-d50 trajectory.
+- **excess-d50:** demoted to a methods appendix with its 0.93 gap-spread confound disclosed,
+  OR cut entirely.
+- **Sentiment / "refusal-specific":** drop as a headline; the honest version is a one-line
+  observation that base is behaviourally ambivalent about ~1/3 of harmful prompts.
+- **Reconciliation stands and is now correct:** "base vectors remain effective" (efficacy
+  invariant — TRUE), "they go stale under fixed ablation" (margin grew — TRUE). Same object.
