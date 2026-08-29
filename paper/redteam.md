@@ -122,3 +122,41 @@ push is now small relative to a 10x-larger margin.
   observation that base is behaviourally ambivalent about ~1/3 of harmful prompts.
 - **Reconciliation stands and is now correct:** "base vectors remain effective" (efficacy
   invariant — TRUE), "they go stale under fixed ablation" (margin grew — TRUE). Same object.
+
+---
+
+# BOX A RESULTS (2026-08-29) — E1/E2/E3
+
+**E1 (causal direction): invariance is NOT a diff-in-means artifact.** Efficacy CV across
+base/sft-1000/dpo/instruct: diff-in-means 0.184, logistic 0.191, **gradient-trained causal
+0.196** — all <0.25. The gradient lever is ~6x more efficient (26.1 vs 4.5) and largely
+orthogonal to diff-in-means (cos 0.21), yet equally invariant. Invariance is a property of
+the direction as a control axis, not of the fitting method. Attack (i) answered.
+
+**E3 (layers): invariance holds at mid-late layers; L20 representative, not special.**
+Per-layer efficacy CV across checkpoints: L8 1.09, L12 1.27, L16 0.55, L20 0.19, L24 0.11,
+L28 0.07. Early layers reorganise with alignment; L20/24/28 are invariant (L24/28 flatter
+than L20). Attack (iii) answered.
+
+**E2 (behavioural dose-response): THE IMPORTANT NUANCE — a dissociation the paper must adopt.**
+5 checkpoints x 7 doses x 80 prompts, generation + HarmBench-13b-cls on 20/cell.
+- **Refusal-ONSET behavioural efficacy IS invariant (CV 0.149)** while margin grows 0.76->7.88
+  and c-to-halve grows 0.40->0.95. So the onset lever is non-circular — it holds on real
+  generations, not just the logit gap. (Instruct at its c50: refusal 0.21, reproduces Gate A.)
+- **BUT genuine-harm controllability DECAYS with alignment.** HarmBench-judged harmful peak:
+  base 0.80 -> sft 0.60 -> dpo 0.45 -> rlvr 0.40 -> **instruct 0.05**. Flipping the aligned
+  model's onset ("Sure, here...") no longer yields genuinely harmful content; heavy dose just
+  degenerates it.
+- **The prefix refusal classifier increasingly OVERSTATES compliance on aligned models:**
+  corr(prefix-comply, HarmBench-harmful) falls 0.96 -> -0.53. This is itself a methods warning
+  for the many papers using prefix-based refusal metrics.
+
+**Consequence for the paper — two warnings, both useful, more honest than the clean version:**
+1. (holds) Fixed-magnitude audits misrank aligned models as least controllable because the
+   margin grows 9.5x while the per-dose ONSET lever is invariant (E1/E2-onset/E3).
+2. (new) Onset-controllability and genuine-harm-controllability DISSOCIATE: the same lever that
+   still flips an aligned model's refusal onset no longer elicits genuine harm, and onset/prefix
+   metrics overstate compliance on aligned models. Auditors must not read onset-flips as harm.
+Scope the invariance claim to the onset/representation lever; report the behavioural-harm decay
+and the prefix-metric failure explicitly. Do NOT claim "aligned models are just as steerable
+for harm."
