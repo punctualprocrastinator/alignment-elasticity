@@ -107,3 +107,26 @@ growing-margin shape kills the "one scale" objection. Drop first if B runs behin
   final figures, and the reproducibility appendix.
 - Priority if compute runs short: E2 > E1 > E4 > E3 > E5 > E6. E2 is the one that
   makes the core claim non-circular; protect it.
+
+---
+
+## Tool ideas assessed 2026-08-30: SAEs and J-lens — HOLD for the full paper
+
+**Pretrained SAEs (`decoderesearch/olmo-3-saes`): not for the workshop paper.**
+Base-only (L4/16/28), so cannot track a direction across the flow — orthogonal to the
+efficacy/margin claim. Good ingredient for a separate frozen-dictionary-survival paper.
+
+**J-lens: the natural MECHANISM for E2's dissociation — but hold for the full version.**
+Hypothesis worth testing later: the refusal direction retains its grip on the
+verbalizable/ONSET workspace across the whole flow (-> invariant onset lever, our E1/E2/E3)
+but loses its grip on the sustained GENERATION TRAJECTORY (-> the HarmBench harm decay,
+E2). J-lens measures exactly "what token is this activation disposed to make the model say,"
+so it can adjudicate this. Doing it right needs (a) a chat-fit lens (the pre-fitted ones are
+wikitext, a confound for chat-tuned models) and (b) a non-safety control direction — the two
+controls that demoted the earlier E8 J-space result to inconclusive. That is a maximal-version
+section, not a 2-day bolt-on; adding it now would reintroduce cleaned-out confounds and break
+the one-idea focus.
+- **Cheap low-risk exception if E4/E5 finish early:** a WITHIN-checkpoint illustration on
+  Instruct alone — decode the refusal direction through Instruct's own lens (refusal
+  vocabulary = onset grip intact) beside its actual safe generations (trajectory grip lost).
+  One figure, no cross-checkpoint lens confound, ~30 min. Illustrative, explicitly subordinate.
