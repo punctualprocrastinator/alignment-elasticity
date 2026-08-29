@@ -204,3 +204,41 @@ margin grows 2.3x (more gradual; run ends at RLVR-last, no separate Instruct end
   barely grows.
 
 Title stays family-agnostic: "Distance to the Boundary Is Not Steering Resistance."
+
+---
+
+# FOUR-FAMILY GENERALIZATION (2026-08-30) — Llama + Gemma added (unsloth full-precision mirrors)
+
+verify_fp confirmed full precision on every arm (Llama 8.03B, Gemma 9.24B, bf16, no
+quantization_config); commits pinned; mirror caveat recorded per file.
+
+| family | margin-growth | onset-flip | onset↔harm dissociation | strict efficacy-invariance |
+|---|---|---|---|---|
+| OLMo-3-7B | Y (9.5x) | Y | Y | **Y (CV 0.13)** |
+| Qwen3-8B | Y (6.2x) | Y | Y (base 0.03→0.75, instr →0.20) | approx (~2x; wide null z≈2) |
+| Llama-3.1-8B | Y (8.5–9.8x) | Y* degeneration | N (harm→0 everywhere) | N (grows ~4x; z≈1–2) |
+| gemma-2-9b | Y (5.9–7.4x) | Y (chat 1.0→0.24) | Y (base 0.25→0.42, instr →0) | approx (5.2→6.2; z≈1.4–2.9) |
+
+**THE RESCOPING THIS FORCES — and it makes the paper stronger, not weaker.**
+Efficacy-invariance is NOT the universal claim (strict only on OLMo; Gemma approximate;
+Llama's lever even GROWS ~4x, and its diff-in-means direction barely clears the null on base,
+z≈1). The UNIVERSAL, 4-family claim is:
+
+**Alignment widens the behavioural margin (5.9–9.8x in every family), which is SUFFICIENT on
+its own to make fixed-dose audits misrank aligned models — regardless of what the direction's
+own steering power does.** On OLMo the lever is provably invariant, so the misranking is PURELY
+margin; on Llama the lever even strengthens; in no family does margin-growth fail to cause the
+misranking. Efficacy-invariance becomes the cleanest DEMONSTRATION (OLMo, echoed approximately
+in Gemma) that the direction need not change at all for the audit to fail — not the headline.
+
+- Honesty (margin 1.2x, no artifact) is the causal control: margin growth is the driver.
+- Dissociation (onset≠harm) holds on OLMo/Qwen/Gemma; Llama is the extreme form — the onset
+  "flip" is pure degeneration (repeating tokens), no genuine harm anywhere. Strengthens the
+  prefix-metric warning rather than weakening it.
+- Off-OLMo the random-direction efficacy null is wide (z 1–3), so per-dose efficacy is a
+  noisier axis there; report it honestly and lead with margin.
+
+**Paper edits required:** abstract + Section 5 lead with margin-growth as the universal
+mechanism across 4 families; efficacy-invariance demoted to "cleanest on OLMo, approximate on
+Gemma, family-dependent elsewhere"; add the unsloth-mirror caveat and Llama's growing/noisy
+lever to limitations.
