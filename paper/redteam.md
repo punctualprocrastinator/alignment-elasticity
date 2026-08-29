@@ -160,3 +160,47 @@ than L20). Attack (iii) answered.
 Scope the invariance claim to the onset/representation lever; report the behavioural-harm decay
 and the prefix-metric failure explicitly. Do NOT claim "aligned models are just as steerable
 for harm."
+
+---
+
+# BOX B RESULTS (2026-08-30) — E4/E5/E6: the phenomenon generalizes, with honesty as the causal control
+
+**E4 (honesty concept): efficacy-invariance replicates MORE strongly; margin barely grows —
+this is the causal control for the whole paper.** Truth direction (Azaria-Mitchell, L20, dim
++ logistic, cos 0.16), carried unchanged across base/sft-1k/dpo/rlvr-last/instruct.
+- efficacy 9.41/9.47/9.68/9.79/9.88, **CV 0.021** (refusal 0.13), z 9-13 vs null.
+- **margin grows only 1.21x** (2.66->3.21) vs refusal's 9.5x. Models do not become
+  dramatically more confidently honest.
+- **=> the fixed-dose audit artifact is driven by MARGIN growth, which is concept-specific:**
+  huge for refusal, near-absent for honesty. Honesty is the controlled contrast proving margin
+  growth (not the lever) causes the misranking. Onset/genuine dissociation for honesty:
+  inconclusive (independent frame flips as much as label frame; no clean label-only lever).
+
+**E5 (Qwen3-8B, second family): margin-growth + audit-misranking + the onset/harm dissociation
+all GENERALIZE; strict efficacy-invariance does NOT.** Refusal direction fit on Qwen3-8B-Base
+(proportional layer 22 of 36), carried to Qwen3-8B.
+- margin grows up to **6.2x** (2.21 base -> 8.15 instruct-neutral -> 13.67 instruct-chat).
+- base direction still drives aligned refusal ONSET to zero (0.99->0.00 base, 1.00->0.00 chat).
+- **onset-vs-genuine-harm dissociation REPLICATES:** HarmBench harm at c50 rises 0.03->0.75 on
+  base but only 0.00->0.20 (chat) on the aligned model.
+- **Scope limit:** efficacy is only APPROXIMATELY invariant off OLMo (3.23->8.33) and Qwen's
+  random-direction null is wide (z 1.6-2.1). Strict efficacy-invariance is an OLMo property;
+  margin-growth + misranking + dissociation are the general ones.
+
+**E6 (OLMo-3 32B, scale): flat-efficacy/growing-margin REPLICATES.** Layer 40 of 64, R^5120
+null, SFT in the 5e-5 lineage (P9 trap). efficacy 5.49/5.58/5.92/5.95 (**CV 0.041**, z 9.7-12.6);
+margin grows 2.3x (more gradual; run ends at RLVR-last, no separate Instruct endpoint).
+
+## Net picture for the paper (all axes)
+- **Robust everywhere:** fixed-dose audits misrank aligned models because ALIGNMENT WIDENS THE
+  MARGIN, not because the direction weakens. Margin grows: refusal 9.5x (7B), 6.2x (Qwen),
+  2.3x (32B); the base direction still flips the aligned onset to ~0 in every case.
+- **Causal control (honesty):** where margin barely grows (1.2x), the audit artifact is minimal
+  -> margin growth is the driver, demonstrated not just asserted.
+- **Second warning, also general (Qwen):** onset-control != genuine-harm-control; flipping the
+  aligned onset does not yield harm; prefix metrics overstate compliance on aligned models.
+- **Honest scope limits:** strict per-dose efficacy-invariance is clean on OLMo (7B CV 0.13,
+  32B CV 0.04, honesty CV 0.02) but only approximate on Qwen (wide null); honesty's margin
+  barely grows.
+
+Title stays family-agnostic: "Distance to the Boundary Is Not Steering Resistance."

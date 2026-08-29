@@ -1,0 +1,105 @@
+{
+ "experiment": "E6 - 32B scale (OLMo-3-32B refusal efficacy/margin)",
+ "checkpoints": [
+  "base",
+  "sft-1000",
+  "dpo",
+  "rlvr-last"
+ ],
+ "split_fingerprint": "99a7ac88967302166d6e1698d1eebae8d2fd9576",
+ "steer_layer": 40,
+ "n_layers": 64,
+ "d_model": 5120,
+ "prop_layer_rule": "round(20/32*64)=40",
+ "commits": {
+  "base": "c2b61dae89a1ad10e4ad5653d0e46b590902607b",
+  "sft-1000": "76ec097cac18b062d08789ab5fc6ffc3ba189eb0",
+  "dpo": "97604023f2602a7dfe6d31b1fc229985e0002022",
+  "rlvr-last": "f395de048595db659a2562913961b2ec5585eb42"
+ },
+ "branches": {
+  "base": "main",
+  "sft-1000": "5e-5-step1000",
+  "dpo": "main",
+  "rlvr-last": "step_750"
+ },
+ "margins": {
+  "base": 0.9470573258399964,
+  "sft-1000": 0.8415624916553497,
+  "dpo": 2.0940105175971984,
+  "rlvr-last": 2.144583442211151
+ },
+ "margin_ci": {
+  "base": [
+   0.8258010192811489,
+   1.0557060130238534
+  ],
+  "sft-1000": [
+   0.739614587455988,
+   0.9362890560626984
+  ],
+  "dpo": [
+   1.943634169280529,
+   2.238976687192917
+  ],
+  "rlvr-last": [
+   1.989737068772316,
+   2.2887774395346643
+  ]
+ },
+ "efficacy_massmean": {
+  "base": 5.494388877916839,
+  "sft-1000": 5.579473093287223,
+  "dpo": 5.92284889045249,
+  "rlvr-last": 5.9516675967251205
+ },
+ "efficacy_massmean_ci": {
+  "base": {
+   "lo": 5.4472478714939,
+   "hi": 5.540017074313062,
+   "median": 5.494098057903777
+  },
+  "sft-1000": {
+   "lo": 5.5318861670964745,
+   "hi": 5.623084268695178,
+   "median": 5.577898621884131
+  },
+  "dpo": {
+   "lo": 5.861201065325848,
+   "hi": 5.983173021142686,
+   "median": 5.922746056294468
+  },
+  "rlvr-last": {
+   "lo": 5.886992981519037,
+   "hi": 6.013542222365788,
+   "median": 5.9515681478251565
+  }
+ },
+ "efficacy_logistic": {
+  "base": 4.59717405892427,
+  "sft-1000": 4.1772420071266785,
+  "dpo": 4.879291303194226,
+  "rlvr-last": 4.944615984937979
+ },
+ "efficacy_z": {
+  "base": 12.605173605920545,
+  "sft-1000": 11.708817906703493,
+  "dpo": 9.834878418960763,
+  "rlvr-last": 9.679642771584255
+ },
+ "c50_massmean": {
+  "base": -0.5229885057471264,
+  "sft-1000": -0.5803571428571429,
+  "dpo": -0.6041666666666666,
+  "rlvr-last": -0.5886752136752137
+ },
+ "efficacy_cv_massmean": 0.04079077512900821,
+ "efficacy_cv_logistic": 0.07508723716583955,
+ "efficacy_range_ratio_massmean": 1.0832264932404376,
+ "margin_growth_base_to_rlvrlast": 2.2644705697292444,
+ "margin_min": 0.8415624916553497,
+ "margin_max": 2.144583442211151,
+ "null_grid": "|c|<=2 subgrid (efficacy uses only |c|<=2); R^5120 null, 20 dirs",
+ "seed": 42,
+ "deviations": "no behavioural generation (efficacy/margin shape check only); SFT = 5e-5-step1000 lineage per P9 32B trap"
+}
