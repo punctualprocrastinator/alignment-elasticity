@@ -22,7 +22,10 @@ crosses 1% of prompts where the base model crosses 92%), yet its per-dose lever 
 in the set. A second safety concept supplies the causal control: for **honesty**, whose margin
 barely grows (1.2×), the audit artifact nearly vanishes — confirming that margin growth, not any
 change in the lever, drives the misranking. The margin-growth mechanism and the misranking
-replicate on a second model family (Qwen3-8B, margin ×6.2) and at larger scale (OLMo-3 32B). We
+replicate across **four model families** — OLMo-3, Qwen3-8B, Llama-3.1-8B, and Gemma-2-9B —
+where the margin grows 5.9×–9.8× in every case; margin growth alone is sufficient to cause the
+misranking, whatever the direction's own steering power does (invariant on OLMo, approximately so
+on Gemma, and on Llama it even strengthens). The effect also holds at larger scale (OLMo-3 32B). We
 add a second, independent warning: **onset-control is not harm-control.** The base direction still
 flips an aligned model's refusal *onset* to compliance, but HarmBench-judged *genuine harm* decays
 with alignment (0.80→0.05 on OLMo, replicated on Qwen), and prefix-based refusal metrics
@@ -59,8 +62,7 @@ a second effect the onset-level view hides: the direction keeps flipping the ali
 *onset* long after it stops eliciting *genuine harm*.
 
 Section 2 is the setup. Section 3 is the instrument artifact (Figure 1). Section 4 is the
-lever/load decomposition (Figure 2). Section 5 is the honesty control and the generalization to a
-second family and scale. Section 6 is the onset-vs-harm dissociation. Section 7 states the limits.
+lever/load decomposition (Figure 2). Section 5 is the honesty control and the generalization across four families and scale. Section 6 is the onset-vs-harm dissociation. Section 7 states the limits.
 
 ---
 
@@ -68,8 +70,10 @@ second family and scale. Section 6 is the onset-vs-harm dissociation. Section 7 
 
 **Models.** The OLMo-3 7B family (Ai2), whose entire training flow is public: base; Think lineage
 at SFT 1k/15k/43k, DPO, first and last RLVR steps; Instruct; and two RL-Zero variants (RL applied
-directly to the base, no SFT). For generalization: **OLMo-3 32B** (base/SFT/DPO/RLVR-last) and
-**Qwen3-8B** base→instruct. Every checkpoint pinned by commit hash.
+directly to the base, no SFT). For generalization: **OLMo-3 32B** (base/SFT/DPO/RLVR-last) and three further base→instruct
+families — **Qwen3-8B, Llama-3.1-8B, Gemma-2-9B** (the latter two via unsloth full-precision
+mirrors, verified bf16 with correct parameter counts, as the official repos are license-gated).
+Every checkpoint pinned by commit hash.
 
 **Directions.** A refusal direction at layer 20 (proportional layer for 32B/Qwen), fit **once on
 the base model** as the difference in mean residual-stream activation between 200 harmful (AdvBench)
@@ -150,7 +154,7 @@ the load as the lever.
 
 ---
 
-## 5. Honesty is the causal control; the effect generalizes (Figure 3)
+## 5. The universal cause is margin growth; honesty is the causal control (Figure 3)
 
 If margin growth causes the misranking, a concept whose margin does *not* grow should show no
 misranking. **Honesty is that control.** Its per-dose lever is even flatter than refusal's (efficacy
@@ -160,20 +164,36 @@ that is dramatic for refusal nearly vanishes for honesty. This is the causal evi
 correlation — that **margin growth, not any change in the lever, drives the misranking**; the
 artifact's magnitude tracks how much behavioural confidence a given concept accrues during alignment.
 
-The mechanism also generalizes beyond OLMo and beyond 7B. On **Qwen3-8B**, a different tokenizer,
-data mixture, and RLHF recipe, the refusal margin grows **6.2×** and the base direction still drives
-the aligned model's refusal onset to zero — the misranking is not an OLMo quirk. On **OLMo-3 32B**
-the flat-lever / growing-load shape replicates (CV 0.041). Two honest scope limits: **strict per-dose
-efficacy-invariance is clean on OLMo (7B, 32B, and honesty) but only approximate on Qwen** (efficacy
-3.2→8.3, with a wide random-direction null, z 1.6–2.1); and honesty's small margin growth is itself
-concept-specific. The *robust* claims — the load grows, the lever does not weaken, fixed-dose audits
-misrank — hold across every axis tested; strict invariance of the lever is the OLMo-specific one.
+**The margin-growth mechanism generalizes across four model families, and it — not lever-invariance
+— is the universal cause.** For each of OLMo-3, Qwen3-8B, Llama-3.1-8B, and Gemma-2-9B we fit the
+refusal direction on the base model and carry it unchanged to the aligned model:
 
-> **Figure 3 — Margin growth drives the artifact; the lever does not.** Left: refusal margin grows
-> 9.5× while honesty's grows 1.2×, yet both levers are flat (efficacy CV 0.13 vs 0.02) — the audit
-> artifact scales with margin growth, not with the lever. Right: margin growth (×6.2) and the
-> misranking replicate on Qwen3-8B and (×2.3) on OLMo-3 32B. `fig_E4_honesty_efficacy.png`,
-> `fig_E5_family.png`, `fig_E6_32b.png`.
+| family | margin growth | onset flip | onset↔harm dissociation | strict lever-invariance |
+|---|---|---|---|---|
+| OLMo-3-7B | 9.5× | yes | yes | **yes (CV 0.13)** |
+| Qwen3-8B | 6.2× | yes | yes | approximate |
+| Llama-3.1-8B | 8.5–9.8× | yes* | (degeneration) | no — lever *grows* ~4× |
+| Gemma-2-9B | 5.9–7.4× | yes (chat) | yes | approximate (5.2→6.2) |
+
+The margin grows in **every** family (5.9×–9.8×), and in every family the fixed-dose audit misranks
+the aligned model. What the direction's *own* steering power does varies — invariant on OLMo, roughly
+so on Gemma, and on Llama it strengthens — yet the misranking appears regardless. **Margin growth is
+therefore the universal, sufficient cause; lever-invariance is not required for the audit to fail.**
+OLMo is the family where the lever is provably invariant, making it the cleanest demonstration that
+the direction need not change at all for a fixed-dose audit to declare an aligned model
+uncontrollable. The result also replicates at scale (**OLMo-3 32B**: flat lever, CV 0.041, margin
+×2.3).
+
+The clean scope statement: *the load grows and fixed-dose audits misrank* is universal across four
+families and two scales; *the lever is strictly invariant* is specific to OLMo (approximate on Gemma,
+family-dependent elsewhere, and measured against a wide null off OLMo).
+
+> **Figure 3 — Margin growth is the universal driver.** Left: refusal margin grows 9.5× while
+> honesty's grows only 1.2×, yet both levers are flat (efficacy CV 0.13 vs 0.02), and the audit
+> artifact appears for refusal but not honesty — margin growth, not the lever, drives it. Right:
+> margin growth and the misranking replicate across Qwen3-8B (×6.2), Llama-3.1-8B (×8.5–9.8),
+> Gemma-2-9B (×5.9–7.4), and OLMo-3 32B (×2.3). `fig_E4_honesty_efficacy.png`, `fig_E5_family.png`,
+> `fig_E5_llama.png`, `fig_E5_gemma.png`, `fig_E6_32b.png`.
 
 ---
 
@@ -216,7 +236,13 @@ compliance on aligned models. Onset-control and harm-control must be measured se
 - **Onset-vs-harm mechanism is unresolved.** We show the dissociation and a prefix-metric failure;
   we do not yet localize *why* onset-control outlives harm-control (the verbalizable-workspace
   hypothesis is future work with the Jacobian lens).
-- **One layer family, one boundary metric per concept, two safety concepts, two families.**
+- **Off-OLMo caveats.** Llama-3.1-8B and Gemma-2-9B use third-party unsloth mirrors (official
+  repos gated); each was verified full-precision bf16 with the expected parameter count before use.
+  Off OLMo the random-direction efficacy null is wide (z 1–3), so per-dose efficacy is a noisier
+  axis; on Llama the base direction barely clears the null and its lever *grows* with alignment.
+  These do not affect the universal margin-growth / misranking claim, which holds in all four
+  families.
+- **One layer family, one boundary metric per concept, two safety concepts, four model families.**
 
 ---
 
