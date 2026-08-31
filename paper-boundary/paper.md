@@ -91,7 +91,7 @@ Every checkpoint pinned by commit hash.
 the base model** as the difference in mean residual-stream activation between 200 harmful (AdvBench)
 and 200 benign (Alpaca) prompts under a neutral scaffold applied identically to every checkpoint;
 carried unchanged to every descendant (this is the staleness question). Fit three ways (difference-in-means, logistic (`tol=1e-10`), and a gradient-trained steering vector),
-which disagree geometrically (cosine 0.16–0.74) yet agree on every conclusion. A **honesty** direction is
+which disagree geometrically (cosine 0.16–0.74) yet agree on every conclusion. A honesty direction is
 fit the same way on Azaria–Mitchell true/false statements.
 
 **Lever and load.** Steering uses `h_l ← h_l + c·μ_l·v̂` (input-normalised, comparable across
@@ -124,7 +124,7 @@ the same sweep:
 
 Under fixed-magnitude ablation and fixed-dose steering, the two instruments the prior literature
 used, the aligned Instruct model ranks last, crossing 1% of prompts where base crosses 92%.
-Yet its per-dose lever is the **strongest of the four**. The instrument that reads "uncontrollable"
+Yet its per-dose lever is the strongest of the four. The instrument that reads "uncontrollable"
 is measuring the model with the most intact lever.
 
 > **Figure 1 — Three instruments, three rankings of the same four models.** (a) Fixed-magnitude
@@ -138,17 +138,17 @@ is measuring the model with the most intact lever.
 ## 4. The lever is invariant; the load grows (Figure 2)
 
 Measuring lever and load at ten points across the flow: the displacement produced per unit dose
-ranges only **3.6–5.6 (CV 0.13)** across base, six Think post-training stages, Instruct, and both
+ranges only 3.6–5.6 (CV 0.13) across base, six Think post-training stages, Instruct, and both
 RL-Zero variants, clearing the random-direction null everywhere (z 4–7). Over the same span the
-margin climbs **9.5×**, from 0.81 to 7.75 logits. A fixed intervention delivers a fixed
+margin climbs 9.5×, from 0.81 to 7.75 logits. A fixed intervention delivers a fixed
 displacement (efficacy × dose); as the load grows tenfold while that displacement stays fixed, it
 crosses fewer prompts. The direction is not going stale. The target is receding.
 
-The invariance is not an artifact of how we fit the direction. A **gradient-trained causal
+The invariance is not an artifact of how we fit the direction. A gradient-trained causal
 direction, six times more efficient (mean 26.1 vs 4.5) and near-orthogonal to diff-in-means (cosine
-0.21), is *equally* invariant (efficacy CV 0.196). The invariance holds across **mid-to-late
-layers** (per-layer CV: L20 0.19, L24 0.11, L28 0.07; early layers reorganise with alignment), and
-**at 32B scale** (CV 0.041, margin ×2.3). It is a property of the direction as a control axis, not
+0.21), is *equally* invariant (efficacy CV 0.196). The invariance holds across mid-to-late
+layers (per-layer CV: L20 0.19, L24 0.11, L28 0.07; early layers reorganise with alignment), and
+at 32B scale (CV 0.041, margin ×2.3). It is a property of the direction as a control axis, not
 of the estimator, the layer, or the model size.
 
 > **Figure 2 — The lever is invariant; only the load grows.** Steering efficacy (displacement per
@@ -168,15 +168,15 @@ the load as the lever.
 ## 5. The universal cause is margin growth; honesty is the causal control (Figure 3)
 
 If margin growth causes the misranking, a concept whose margin does *not* grow should show no
-misranking. **Honesty is that control.** Its per-dose lever is even flatter than refusal's (efficacy
-CV **0.021**), but across the same checkpoints its margin grows only **1.2×** (2.66→3.21): the model
+misranking. Honesty is that control. Its per-dose lever is even flatter than refusal's (efficacy
+CV 0.021), but across the same checkpoints its margin grows only 1.2× (2.66→3.21): the model
 does not become dramatically more confidently honest. Correspondingly, the fixed-dose audit artifact
 that is dramatic for refusal nearly vanishes for honesty. This is the causal evidence, not just a
 correlation, that margin growth, not any change in the lever, drives the misranking; the
 artifact's magnitude tracks how much behavioural confidence a given concept accrues during alignment.
 
-**The margin-growth mechanism generalizes across four model families, and it, not lever-invariance,
-is the universal cause.** For each of OLMo-3, Qwen3-8B, Llama-3.1-8B, and Gemma-2-9B we fit the
+The margin-growth mechanism generalizes across four model families, and it, not lever-invariance,
+is the universal cause. For each of OLMo-3, Qwen3-8B, Llama-3.1-8B, and Gemma-2-9B we fit the
 refusal direction on the base model and carry it unchanged to the aligned model:
 
 | family | margin growth | onset flip | onset↔harm dissociation | strict lever-invariance |
@@ -186,13 +186,13 @@ refusal direction on the base model and carry it unchanged to the aligned model:
 | Llama-3.1-8B | 9.8× | yes* | (degeneration) | no (lever *grows* ~4×) |
 | Gemma-2-9B | 5.9× | yes (chat) | yes | approximate (5.2→6.2) |
 
-The margin grows in **every** family (×3.7–×9.8, format-matched; native chat arms grow more), and in every family the fixed-dose audit misranks
+The margin grows in every family (×3.7–×9.8, format-matched; native chat arms grow more), and in every family the fixed-dose audit misranks
 the aligned model. What the direction's *own* steering power does varies (invariant on OLMo, roughly
 so on Gemma, growing on Llama), yet the misranking appears regardless. **Margin growth is
 therefore the universal, sufficient cause; lever-invariance is not required for the audit to fail.**
 OLMo is the family where the lever is provably invariant, making it the cleanest demonstration that
 the direction need not change at all for a fixed-dose audit to declare an aligned model
-uncontrollable. The result also replicates at scale (**OLMo-3 32B**: flat lever, CV 0.041, margin
+uncontrollable. The result also replicates at scale (OLMo-3 32B: flat lever, CV 0.041, margin
 ×2.3).
 
 The clean scope statement: *the load grows and fixed-dose audits misrank* is universal across four
@@ -210,12 +210,12 @@ family-dependent elsewhere, and measured against a wide null off OLMo).
 ## 6. Onset-control is not harm-control (Figure 4)
 
 The lever's invariance is measured on the refusal *onset*, the first-token disposition. Routing it
-through full generations confirms the onset lever is non-circular: **behavioural** refusal-onset
+through full generations confirms the onset lever is non-circular: behavioural refusal-onset
 efficacy is invariant across checkpoints (CV 0.149) while the margin grows, and the aligned model's
 refusal rate falls from 1.00 to 0.18 when dosed to its own boundary. But a validity check with the
 HarmBench classifier reveals a dissociation the onset view hides. As alignment proceeds, flipping
 the onset stops producing genuine harm: HarmBench-judged harmful output at each model's crossing
-dose decays **0.80 → 0.60 → 0.45 → 0.40 → 0.05** from base to Instruct, and heavy dosing merely
+dose decays 0.80 → 0.60 → 0.45 → 0.40 → 0.05 from base to Instruct, and heavy dosing merely
 degenerates the aligned model. The same dissociation replicates on Qwen (genuine harm 0.03→0.75 on
 base, 0.00→0.20 on the aligned model).
 
