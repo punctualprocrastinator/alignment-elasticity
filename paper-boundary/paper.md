@@ -61,8 +61,22 @@ constant while the load grows an order of magnitude. A second concept whose load
 a second effect the onset-level view hides: the direction keeps flipping the aligned model's
 *onset* long after it stops eliciting *genuine harm*.
 
-Section 2 is the setup. Section 3 is the instrument artifact (Figure 1). Section 4 is the
-lever/load decomposition (Figure 2). Section 5 is the honesty control and the generalization across four families and scale. Section 6 is the onset-vs-harm dissociation. Section 7 states the limits.
+**Contributions.**
+- We show that fixed-magnitude steering and ablation audits **systematically misrank aligned
+  models as less controllable**, and identify the cause: alignment widens the behavioural margin
+  (×5.9–9.8 across four model families) while the direction's per-dose lever does not weaken (§3–4).
+- We establish this causally with a **control concept**: honesty, whose margin barely grows (×1.2),
+  shows essentially no audit artifact — margin growth, not the lever, drives the misranking (§5).
+- We report a **second, opposite audit failure**: onset-control is not harm-control. The base
+  direction still flips an aligned model's refusal onset, but genuine (HarmBench-judged) harm decays
+  with alignment, and prefix-based refusal metrics increasingly overstate compliance (§6).
+- We give the **honest scope**: strict per-dose lever-invariance is clean on OLMo, approximate off
+  it; the universal, sufficient cause of the misranking is margin growth (§5, §7). All code, pinned
+  commits, split fingerprints, and a discarded-statistic autopsy are released.
+
+The paper is organized around these: §3 the instrument artifact (Figure 1), §4 the lever/load
+decomposition (Figure 2), §5 the honesty control and four-family generalization (Figure 3), §6 the
+onset-vs-harm dissociation (Figure 4), §7 the limits.
 
 ---
 
