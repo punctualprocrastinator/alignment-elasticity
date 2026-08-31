@@ -17,8 +17,11 @@ def esc(t):
         t = t.replace(a, b)
     return t
 
-def clip(t, n):
-    return (t[:n] + r'\ldots') if len(t) > n else t
+def clip_esc(t, n):
+    # escape first, THEN append the ldots macro, so the macro is not escaped
+    trunc = len(t) > n
+    body = esc(t[:n]) if trunc else esc(t)
+    return body + (r'\ldots' if trunc else '')
 
 L = []
 L.append('% Auto-generated from results/gateA_gen_instruct.json (seed 42). Do not hand-edit.')
@@ -40,7 +43,7 @@ L.append(r'\toprule')
 L.append(r'Harmful prompt & Unsteered onset & Steered onset (flipped) \\')
 L.append(r'\midrule')
 for i in samp:
-    p = esc(clip(pr[i], 52)); u = esc(clip(ut[i], 44)); s = esc(clip(st[i], 60))
+    p = clip_esc(pr[i], 52); u = clip_esc(ut[i], 44); s = clip_esc(st[i], 60)
     L.append('``%s\'\' & ``%s\'\' & ``%s\'\' \\\\' % (p, u, s))
 L.append(r'\bottomrule')
 L.append(r'\end{tabular}')

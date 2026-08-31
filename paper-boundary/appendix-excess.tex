@@ -1,0 +1,39 @@
+\section*{Appendix A\quad The discarded ``excess displacement'' statistic}
+\addcontentsline{toc}{section}{Appendix A}
+
+We first summarised the effect with an \emph{excess displacement} statistic: the displacement a
+model needs \emph{past} its own boundary to flip its median prompt, defined as
+$d_{50} - \mathrm{median}(\text{unsteered gap})$. It appeared to tell a clean ``abrupt at SFT''
+story. We discarded it, and report per-dose efficacy instead, for the reason below.
+
+\paragraph{Why it was discarded.} Across the six OLMo refusal checkpoints, excess displacement
+correlates \num{0.93} with the standard deviation of the unsteered-gap distribution and \num{0.83}
+with its skew. In other words it largely restates the \emph{shape} of the unsteered-gap
+distribution rather than a property of steering: models with a wide, near-zero-straddling gap
+distribution (base, both RL-Zero variants, which never underwent SFT) show large excess, and models
+whose gap distribution is concentrated deep in refusal (all SFT descendants) show excess near zero.
+
+\begin{table}[h]\centering\small
+\begin{tabular}{lccc}
+\toprule
+checkpoint & excess $d_{50}$ & std(gap) & frac(gap$<$0) \\
+\midrule
+base       & 0.979 & 1.79 & 0.36 \\
+SFT 1k     & $-0.032$ & 1.56 & 0.02 \\
+SFT 15k    & 0.013 & 1.33 & 0.00 \\
+Instruct   & 0.037 & 1.38 & 0.00 \\
+RL-Zero Math & 1.082 & 1.85 & 0.34 \\
+RL-Zero Code & 0.957 & 1.88 & 0.35 \\
+\bottomrule
+\end{tabular}
+\caption{Excess displacement tracks the unsteered-gap spread, not steering: $\mathrm{corr}=0.93$.}
+\end{table}
+
+\paragraph{Why efficacy does not inherit the confound.} The natural worry (raised by our own
+review) is that the replacement statistic, per-dose efficacy, might be confounded the same way. It
+is not: across the ten checkpoints, $\mathrm{corr}(\text{efficacy}, \text{gap-spread}) = -0.23$,
+far below the \num{0.93} that condemned excess displacement. Efficacy does carry a mild positive
+association with the margin itself ($\mathrm{corr} = +0.43$), which is exactly why we describe the
+refusal lever as non-weakening and mildly increasing rather than strictly invariant, and reserve
+``invariant'' for the honesty control (efficacy CV \num{0.021}). Reporting a statistic we killed,
+and the confound check that clears its replacement, is the transparency this appendix exists for.

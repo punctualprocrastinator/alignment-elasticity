@@ -80,7 +80,8 @@ def fig1():
 def fig2():
     order=[("base","base"),("SFT 1k","think-sft-1000"),("SFT 15k","think-sft-15000"),
            ("SFT 43k","think-sft-43000"),("DPO","think-dpo"),
-           ("RLVR first","think-rlvr-first"),("RLVR last","think-rlvr-last")]
+           ("RLVR first","think-rlvr-first"),("RLVR last","think-rlvr-last"),
+           ("Instruct","instruct")]
     labels=[l for l,_ in order]; M=[];E=[]
     for _,k in order:
         m,e=efficacy_margin(sweep(k)); M.append(m); E.append(e)
@@ -93,6 +94,7 @@ def fig2():
     ax.set_xticks(x); ax.set_xticklabels(labels,rotation=20,ha="right")
     ax.set_ylabel("fold change vs base")
     ax.set_ylim(0,10.5)
+    ax.axvspan(6.5,7.5,color="#eda100",alpha=0.06)
     ax.legend(loc="upper left")
     save(fig,"fig2_lever_vs_load.png")
 
