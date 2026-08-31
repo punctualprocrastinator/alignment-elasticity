@@ -23,7 +23,7 @@ in the set. A second safety concept supplies the causal control: for **honesty**
 barely grows (1.2×), the audit artifact nearly vanishes — confirming that margin growth, not any
 change in the lever, drives the misranking. The margin-growth mechanism and the misranking
 replicate across **four model families** — OLMo-3, Qwen3-8B, Llama-3.1-8B, and Gemma-2-9B —
-where the margin grows 5.9×–9.8× in every case; margin growth alone is sufficient to cause the
+where the margin grows ×3.7–×9.8 (format-matched) in every case; margin growth alone is sufficient to cause the
 misranking, whatever the direction's own steering power does (invariant on OLMo, approximately so
 on Gemma, and on Llama it even strengthens). The effect also holds at larger scale (OLMo-3 32B). We
 add a second, independent warning: **onset-control is not harm-control.** The base direction still
@@ -64,7 +64,7 @@ a second effect the onset-level view hides: the direction keeps flipping the ali
 **Contributions.**
 - We show that fixed-magnitude steering and ablation audits **systematically misrank aligned
   models as less controllable**, and identify the cause: alignment widens the behavioural margin
-  (×5.9–9.8 across four model families) while the direction's per-dose lever does not weaken (§3–4).
+  (×3.7–×9.8 across four model families) while the direction's per-dose lever does not weaken (§3–4).
 - We establish this causally with a **control concept**: honesty, whose margin barely grows (×1.2),
   shows essentially no audit artifact — margin growth, not the lever, drives the misranking (§5).
 - We report a **second, opposite audit failure**: onset-control is not harm-control. The base
@@ -134,7 +134,7 @@ is measuring the model with the most intact lever.
 > ablation and (b) fixed-dose steering place the aligned model *last* — the basis for "base
 > directions go stale." (c) Per-dose efficacy places it *first*. The disagreement is instrumental:
 > the first two confuse distance-to-boundary (load) with resistance-to-being-moved (lever). Bars
-> bootstrap means, whiskers 95% CIs. `fig_threeInstruments.png`.
+> bootstrap means, whiskers 95% CIs. `fig1_three_instruments.png`.
 
 ---
 
@@ -158,7 +158,7 @@ of the estimator, the layer, or the model size.
 > unit dose; right axis) is flat across pretraining → SFT → DPO → RLVR (3.6–5.6, CV 0.13) while the
 > behavioural margin it must overcome (left axis) grows 9.5×. A fixed-magnitude ablation delivers a
 > fixed displacement, so it fails on aligned models purely because the margin widened.
-> `fig_efficacy_margin.png`.
+> `fig2_lever_vs_load.png`.
 
 **Reconciliation.** "Base vectors remain effective" — the lever is invariant. "They go stale under
 fixed ablation" — the load grew, so a fixed removal no longer reaches the boundary. "Post-training
@@ -185,11 +185,11 @@ refusal direction on the base model and carry it unchanged to the aligned model:
 | family | margin growth | onset flip | onset↔harm dissociation | strict lever-invariance |
 |---|---|---|---|---|
 | OLMo-3-7B | 9.5× | yes | yes | **yes (CV 0.13)** |
-| Qwen3-8B | 6.2× | yes | yes | approximate |
-| Llama-3.1-8B | 8.5–9.8× | yes* | (degeneration) | no — lever *grows* ~4× |
-| Gemma-2-9B | 5.9–7.4× | yes (chat) | yes | approximate (5.2→6.2) |
+| Qwen3-8B | 3.7× | yes | yes | approximate |
+| Llama-3.1-8B | 9.8× | yes* | (degeneration) | no — lever *grows* ~4× |
+| Gemma-2-9B | 5.9× | yes (chat) | yes | approximate (5.2→6.2) |
 
-The margin grows in **every** family (5.9×–9.8×), and in every family the fixed-dose audit misranks
+The margin grows in **every** family (×3.7–×9.8, format-matched; native chat arms grow more), and in every family the fixed-dose audit misranks
 the aligned model. What the direction's *own* steering power does varies — invariant on OLMo, roughly
 so on Gemma, and on Llama it strengthens — yet the misranking appears regardless. **Margin growth is
 therefore the universal, sufficient cause; lever-invariance is not required for the audit to fail.**
@@ -205,9 +205,8 @@ family-dependent elsewhere, and measured against a wide null off OLMo).
 > **Figure 3 — Margin growth is the universal driver.** Left: refusal margin grows 9.5× while
 > honesty's grows only 1.2×, yet both levers are flat (efficacy CV 0.13 vs 0.02), and the audit
 > artifact appears for refusal but not honesty — margin growth, not the lever, drives it. Right:
-> margin growth and the misranking replicate across Qwen3-8B (×6.2), Llama-3.1-8B (×8.5–9.8),
-> Gemma-2-9B (×5.9–7.4), and OLMo-3 32B (×2.3). `fig_E4_honesty_efficacy.png`, `fig_E5_family.png`,
-> `fig_E5_llama.png`, `fig_E5_gemma.png`, `fig_E6_32b.png`.
+> margin growth and the misranking replicate across Qwen3-8B (×3.7), Llama-3.1-8B (×9.8),
+> Gemma-2-9B (×5.9), and OLMo-3 32B (×2.3); format-matched neutral scaffold. `fig3_margin_universal_honesty.png`.
 
 ---
 
@@ -231,7 +230,7 @@ compliance on aligned models. Onset-control and harm-control must be measured se
 > **Figure 4 — Onset-control survives; harm-control decays.** The base direction still flips the
 > aligned model's refusal onset (behavioural onset efficacy invariant, CV 0.149), but HarmBench-
 > judged genuine harm at the crossing dose decays 0.80→0.05 with alignment; a prefix refusal
-> classifier's agreement with true harm flips +0.96→−0.53. `fig_E2_behavioural_doseresponse.png`.
+> classifier's agreement with true harm flips +0.96→−0.53. `fig4_onset_vs_harm.png`.
 
 ---
 
