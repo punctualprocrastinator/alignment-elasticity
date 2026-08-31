@@ -89,7 +89,18 @@ def fig2():
     fig,ax=plt.subplots(figsize=(6.6,4.3))
     x=np.arange(len(labels))
     ax.plot(x,M/M[0],"-o",color=C_MARGIN,lw=2.4,ms=6,markeredgecolor=SURF,markeredgewidth=1.2,label="behavioural margin (load)")
-    ax.plot(x,E/E[0],"-s",color=C_LEVER,lw=2.4,ms=6,markeredgecolor=SURF,markeredgewidth=1.2,label="steering efficacy (lever)")
+    # per-checkpoint efficacy 95% CIs (bootstrap over prompts), in fold-change units
+    try:
+        tost=load("efficacy_tost.json"); ef=tost["efficacy"]
+        keymap={"base":"base","SFT 1k":"SFT 1k","SFT 15k":"SFT 15k","SFT 43k":"SFT 43k",
+                "DPO":"DPO","RLVR first":"RLVR first","RLVR last":"RLVR last","Instruct":"Instruct"}
+        elo=np.array([ef[keymap[l]]["ci"][0] for l in labels])/E[0]
+        ehi=np.array([ef[keymap[l]]["ci"][1] for l in labels])/E[0]
+        yerr=np.vstack([E/E[0]-elo, ehi-E/E[0]])
+        ax.errorbar(x,E/E[0],yerr=yerr,fmt="-s",color=C_LEVER,lw=2.4,ms=6,capsize=3,
+                    markeredgecolor=SURF,markeredgewidth=1.2,label="steering efficacy (lever), 95% CI")
+    except Exception:
+        ax.plot(x,E/E[0],"-s",color=C_LEVER,lw=2.4,ms=6,markeredgecolor=SURF,markeredgewidth=1.2,label="steering efficacy (lever)")
     ax.axhline(1,color=MUT,lw=0.8,ls=":")
     ax.set_xticks(x); ax.set_xticklabels(labels,rotation=20,ha="right")
     ax.set_ylabel("fold change vs base")

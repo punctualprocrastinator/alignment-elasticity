@@ -37,3 +37,28 @@ association with the margin itself ($\mathrm{corr} = +0.43$), which is exactly w
 refusal lever as non-weakening and mildly increasing rather than strictly invariant, and reserve
 ``invariant'' for the honesty control (efficacy CV \num{0.021}). Reporting a statistic we killed,
 and the confound check that clears its replacement, is the transparency this appendix exists for.
+
+\paragraph{Per-checkpoint efficacy with intervals.} Table~\ref{tab:effci} lists the ten OLMo efficacy
+values that yield CV \num{0.127} (95\% CI $[0.119, 0.137]$), each with a 95\% bootstrap CI over prompts
+(1000 resamples, seed 42). Non-inferiority to base holds for all nine post-training checkpoints.
+
+\begin{table}[h]\centering\small
+\begin{tabular}{lcc}
+\toprule
+checkpoint & efficacy & 95\% CI \\
+\midrule
+base & 3.84 & [3.74, 3.94] \\
+SFT 1k & 4.55 & [4.46, 4.63] \\
+SFT 15k & 4.20 & [4.13, 4.27] \\
+SFT 43k & 3.63 & [3.54, 3.73] \\
+DPO & 3.90 & [3.80, 4.00] \\
+RLVR first & 3.91 & [3.80, 4.00] \\
+RLVR last & 3.99 & [3.88, 4.08] \\
+Instruct & 5.61 & [5.50, 5.72] \\
+RL-Zero Math & 4.01 & [3.90, 4.12] \\
+RL-Zero Code & 4.12 & [4.01, 4.23] \\
+\bottomrule
+\end{tabular}
+\caption{Per-checkpoint steering efficacy (lever) with 95\% bootstrap CIs; Instruct is significantly above base.}
+\label{tab:effci}
+\end{table}

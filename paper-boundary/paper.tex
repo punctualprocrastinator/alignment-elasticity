@@ -50,7 +50,9 @@ enough to cause the misranking, whatever the direction's own steering power does
 on OLMo, roughly so on Gemma, and grows on Qwen and Llama. The effect holds at larger scale
 (OLMo-3 32B). A second, independent warning follows: onset-control is not harm-control. The base
 direction still flips an aligned model's refusal onset to compliance, but HarmBench-judged genuine
-harm decays with alignment (\num{0.80} to \num{0.05} on OLMo, replicated on Qwen), and prefix-based
+harm at the crossing dose decays with alignment (\num{0.80} to \num{0.05} on OLMo, replicated on Qwen;
+this decay is confounded with dose-driven degeneration and is a hypothesis pending a coherence-matched
+measurement, \S\ref{sec:limits}), and prefix-based
 refusal metrics increasingly overstate compliance, their correlation with true harm flipping from
 $+0.96$ to $-0.53$. Safety audits that ablate a fixed direction understate aligned-model
 controllability; audits that read refusal-onset as harm overstate it.
@@ -86,7 +88,8 @@ model's onset long after it stops eliciting genuine harm.
 \item We show that fixed-magnitude steering and ablation audits systematically misrank aligned
   models as less controllable, and identify the cause: alignment widens the behavioural margin
   (\num{3.7}\x--\num{9.8}\x{} across four model families) while the direction's per-dose lever does
-  not weaken (\S\ref{sec:instrument}--\S\ref{sec:lever}).
+  not weaken --- a non-inferiority test confirms this at all nine post-training checkpoints
+  (\S\ref{sec:instrument}--\S\ref{sec:lever}).
 \item We establish this with a control concept: honesty, whose margin barely grows
   (\num{1.2}\x), shows essentially no audit artifact; margin growth, not the lever, drives the
   misranking (\S\ref{sec:universal}).
@@ -175,7 +178,14 @@ random-direction null everywhere ($z$~4--7). The residual dispersion is systemat
 aligned model has the \emph{largest} lever, so we call the lever non-weakening and mildly increasing
 for refusal, and reserve ``invariant'' for the honesty control (CV \num{0.021}). The per-layer L20 CV
 of \num{0.19} reported below is a distinct quantity, over a three-checkpoint layer-robustness subset,
-not this ten-point flow. Over the same span the margin climbs \num{9.5}\x, from \num{0.81} to
+not this ten-point flow.
+A pre-registered non-inferiority test (equivalence margin $\Delta = 0.20\times$ base efficacy $= 0.77$;
+paired bootstrap over prompts, 1000 resamples) establishes the lever as non-weakening at all nine
+post-training checkpoints: the worst case (SFT 43k) has paired difference vs base $-0.21$
+(95\% CI $[-0.30, -0.12]$), inside the margin, and the aligned Instruct model's lever is significantly
+\emph{above} base ($+1.77$, 95\% CI $[+1.64, +1.91]$), which is why we say mildly increasing rather than
+flat. The ten-checkpoint efficacy CV is \num{0.127} (95\% CI $[0.119, 0.137]$). Per-checkpoint efficacy
+CIs are in Table~\ref{tab:effci} (Appendix~A) and drawn on Figure~\ref{fig:lever}. Over the same span the margin climbs \num{9.5}\x, from \num{0.81} to
 \num{7.75} logits. A fixed intervention delivers a fixed displacement (efficacy $\times$ dose); as
 the load grows tenfold while that displacement stays fixed, it crosses fewer prompts. The direction
 is not going stale. The target is receding.
