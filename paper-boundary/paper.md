@@ -74,7 +74,7 @@ it stops eliciting genuine harm.
 
 The paper is organized around these: §3 the instrument artifact (Figure 1), §4 the lever/load
 decomposition (Figure 2), §5 the honesty control and four-family generalization (Figure 3), §6 the
-onset-vs-harm dissociation (Figure 4), §7 the limits.
+onset-vs-harm dissociation (Figure 4), §7 related work, §8 the limits, §9 the takeaways.
 
 ---
 
@@ -231,7 +231,42 @@ compliance on aligned models. Onset-control and harm-control must be measured se
 
 ---
 
-## 7. What the measurement cannot decide
+## 7. Related work
+
+**Steering directions across training.** Several recent studies carry a base-model direction across
+the training flow. Persona-vector work (arXiv 2605.13329) tracks trait directions through OLMo-3
+pretraining and post-training and reports that base-derived vectors remain effective on aligned
+models; a checkpoint study of OLMo-3 refusal directions reports that post-training directions steer
+better than pretraining ones; our own earlier ablations found the base refusal direction failing on
+the aligned model. The three results appear to conflict. We reconcile them: each fixes the
+intervention magnitude and reads an outcome, and that outcome depends on how far the model sits from
+its decision boundary. The persona-vector protocol normalises dose by the local residual-stream
+norm, an input-side quantity that does not equalise the boundary distance, which grows roughly
+tenfold across the flow (Section 4). The boundary-relative view is what makes the three findings one.
+
+**Probing versus steering.** That a direction can be decodable without being an effective steering
+axis is established (e.g. arXiv 2608.12334). We do not re-establish the dissociation; we explain
+part of it developmentally. The per-dose steering lever is invariant across the OLMo flow
+(Section 4), so the apparent loss of control on an aligned model is not the direction weakening but
+the margin widening.
+
+**Monitor and probe staleness under updates.** Frozen activation probes are known to drift out of
+alignment under fine-tuning while the underlying signal survives (arXiv 2606.15980). That work
+concerns readout: does a frozen probe still classify? Ours concerns control: does a fixed
+intervention still move behaviour? The two are complementary. Readout directions rotate, and we show
+that the control lever's per-dose strength does not decay, so the failure of fixed-magnitude control
+is attributable to the margin rather than the lever.
+
+**Refusal metrics and a naming note.** Prefix-based refusal detection is standard in steering and
+jailbreak evaluation. Section 6 shows it inverts on aligned models, overstating compliance where
+genuine harm has not risen; classifiers that judge genuine harm (e.g. HarmBench, Mazeika et al.,
+2024) are the right instrument. Finally, "elasticity" has been used for a different phenomenon, the
+tendency of aligned models to revert toward pretraining behaviour under further fine-tuning (Ji et
+al., ACL 2025); our subject is steerability under a fixed intervention, unrelated to that usage.
+
+---
+
+## 8. What the measurement cannot decide
 
 - **Strict efficacy-invariance is OLMo-specific.** On Qwen the lever grows ~2.6× and its null is
   wide; we claim invariance for OLMo and approximate constancy elsewhere. The *load-grows /
@@ -256,7 +291,7 @@ compliance on aligned models. Onset-control and harm-control must be measured se
 
 ---
 
-## 8. Conclusion: so what
+## 9. Conclusion: so what
 
 Two practical warnings, opposite in direction, both cheap to act on. **A safety audit that ablates
 a fixed direction, or steers at a fixed magnitude, understates an aligned model's controllability**,
