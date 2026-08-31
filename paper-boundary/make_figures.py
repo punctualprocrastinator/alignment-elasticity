@@ -125,7 +125,7 @@ def fig3():
     for yi,v in zip(yb,b_folds): a2.annotate(f"{v:.1f}x",(v,yi),xytext=(5,0),textcoords="offset points",va="center",fontsize=9.5,color=INK2)
     a2.set_yticks(yb); a2.set_yticklabels(b_names); a2.set_xlim(0,11)
     a2.set_xlabel("margin growth (OLMo-3)"); a2.axvline(1,color=MUT,lw=0.8,ls=":")
-    a2.set_title("the causal control",fontsize=11,color=INK,pad=8)
+    a2.set_title("the control concept",fontsize=11,color=INK,pad=8)
     save(fig,"fig3_margin_universal_honesty.png")
 
 # ============================ FIGURE 4: onset-control != harm-control

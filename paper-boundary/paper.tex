@@ -38,8 +38,7 @@ model still refuses. We show the direction does not weaken. The target moves. Ac
 OLMo-3 training flow the model's behavioural margin, its unsteered distance from the refusal
 decision boundary, grows \num{9.5}\x, from \num{0.81} to \num{7.75} logits, while the direction's
 per-dose steering efficacy stays nearly constant (coefficient of variation \num{0.13}, a \num{1.6}\x{} spread whose maximum is the aligned model itself; a
-gradient-trained direction, six times more efficient and near-orthogonal, is similarly near-constant, CV 
-um{0.196}). A fixed-magnitude intervention therefore fails on aligned models for one banal reason:
+gradient-trained direction, six times more efficient and near-orthogonal, is similarly near-constant (efficacy CV \num{0.196}). A fixed-magnitude intervention therefore fails on aligned models for one banal reason:
 the same push is now small against a far wider margin. This inverts a natural ranking. Under fixed
 ablation and fixed-dose steering the aligned model looks least controllable, crossing \SI{1}{\percent}
 of prompts where the base model crosses \SI{92}{\percent}, yet its per-dose lever is the strongest
@@ -88,7 +87,7 @@ model's onset long after it stops eliciting genuine harm.
   models as less controllable, and identify the cause: alignment widens the behavioural margin
   (\num{3.7}\x--\num{9.8}\x{} across four model families) while the direction's per-dose lever does
   not weaken (\S\ref{sec:instrument}--\S\ref{sec:lever}).
-\item We establish this causally with a control concept: honesty, whose margin barely grows
+\item We establish this with a control concept: honesty, whose margin barely grows
   (\num{1.2}\x), shows essentially no audit artifact; margin growth, not the lever, drives the
   misranking (\S\ref{sec:universal}).
 \item We report a second, opposite audit failure: onset-control is not harm-control. The base
@@ -181,7 +180,7 @@ not this ten-point flow. Over the same span the margin climbs \num{9.5}\x, from 
 the load grows tenfold while that displacement stays fixed, it crosses fewer prompts. The direction
 is not going stale. The target is receding.
 
-The invariance is not an artifact of how we fit the direction. A gradient-trained causal direction,
+The invariance is not an artifact of how we fit the direction. A gradient-trained steering direction,
 six times more efficient (mean \num{26.1} vs \num{4.5}) and near-orthogonal to diff-in-means (cosine
 \num{0.21}), is similarly near-constant (efficacy CV \num{0.196}, against \num{0.13} for difference-in-means). The invariance holds across mid-to-late
 layers (per-layer CV: L20 \num{0.19}, L24 \num{0.11}, L28 \num{0.07}; early layers reorganise with
@@ -353,7 +352,7 @@ The scientific core is a small, well-controlled invariant. The base refusal dire
 stale, does not need refitting, and does not steer ``better'' after alignment. Per unit dose it
 steers the same, from the start of pretraining through RLVR, at 7B and 32B, for refusal and (even
 more flatly) for honesty. What changes is how far the model has walked from its own decision
-boundary, demonstrated causally by a concept, honesty, whose boundary barely moves and whose audit
+boundary, demonstrated by a control concept, honesty, whose boundary barely moves and whose audit
 artifact barely appears. Measured in the right units, ``does the direction survive alignment?'' has
 a clean answer: the direction changed far less than the margin, and for refusal did not weaken at all.
 
