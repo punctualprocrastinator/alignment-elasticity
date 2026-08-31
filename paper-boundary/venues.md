@@ -8,10 +8,18 @@
   post-training reshape the base model beyond benchmark gains?") is answered almost verbatim by our
   margin-vs-lever result. Later deadline; needs a light intro/abstract reframe.
 
-Both are non-archival. If concurrent non-archival submission is permitted by both (VERIFY each
-policy; note reciprocal-reviewing obligations), submit to both: InterpScience with the current
-framing, Pre-to-Post with a reframed intro. If picking one: InterpScience for zero-reframe and
-sharper novelty, Pre-to-Post for the later deadline and a more literal thematic match to the empirics.
+**FORCED EITHER/OR — cannot submit to both (verified 2026-08-30 from InterpScience CFP).**
+InterpScience policy: "we do not allow submissions currently under review at another workshop
+(including other workshops co-located with NeurIPS 2026)." Pre-to-Post is co-located, so submitting
+to one blocks the other. Sequencing forces the choice early: InterpScience's deadline (Sep 1-2)
+comes first, so choosing Pre-to-Post means deliberately letting the InterpScience deadline pass.
+
+Recommendation: **InterpScience.** Zero reframe; the mechanism-vs-artifact reconciliation is the
+paper's most novel move and the workshop's exact theme; the interp audience most values the
+steering-vector reconciliation. The paper is already done, so Pre-to-Post's 3-4 extra days buy
+little. Pre-to-Post is the fully-defensible alternative if you prefer the training-science audience
+or want the buffer, but it requires forgoing InterpScience entirely and a light reframe.
+(InterpScience does allow concurrent submission to the NeurIPS MAIN conference, if that is ever relevant.)
 
 | Workshop | Deadline | Fit | Notes |
 |---|---|---|---|
