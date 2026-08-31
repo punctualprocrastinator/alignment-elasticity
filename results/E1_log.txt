@@ -1,0 +1,68 @@
+16:11:01 === E1 start; split fingerprint 99a7ac88967302166d6e1698d1eebae8d2fd9576
+16:11:01 loading allenai/Olmo-3-1025-7B @ main (a81bae42db)
+16:11:31 loaded base in 30.0s
+16:11:31 base mu_L20 = 27.952
+16:11:31 grad-train init val_gap=+1.7532 (n_train=150 n_val=50 alpha=1.00 mu=27.952 lr=0.05)
+16:11:31   step   1 train_loss=+2.0783 val_gap=-13.3886 best=-13.3886@1 (0.2s)
+16:11:32   step  10 train_loss=-34.1520 val_gap=-35.9310 best=-35.9310@10 (1.0s)
+16:11:33   step  20 train_loss=-44.3479 val_gap=-44.7924 best=-44.7924@20 (1.9s)
+16:11:34   step  30 train_loss=-48.7611 val_gap=-48.6613 best=-48.6613@30 (2.7s)
+16:11:35   step  40 train_loss=-51.1660 val_gap=-51.1304 best=-51.1304@40 (3.6s)
+16:11:36   step  50 train_loss=-53.0417 val_gap=-52.9864 best=-52.9864@50 (4.5s)
+16:11:37   step  60 train_loss=-54.7458 val_gap=-54.4967 best=-54.4967@60 (5.3s)
+16:11:37   step  70 train_loss=-55.9340 val_gap=-55.7919 best=-55.7919@70 (6.2s)
+16:11:38   step  80 train_loss=-57.0097 val_gap=-56.9810 best=-56.9810@80 (7.0s)
+16:11:39   step  90 train_loss=-58.0611 val_gap=-57.9913 best=-57.9913@90 (7.9s)
+16:11:40   step 100 train_loss=-59.2771 val_gap=-58.8529 best=-58.8529@100 (8.7s)
+16:11:41   step 110 train_loss=-59.6472 val_gap=-59.6271 best=-59.6271@110 (9.5s)
+16:11:42   step 120 train_loss=-60.3549 val_gap=-60.2467 best=-60.2467@120 (10.4s)
+16:11:42   step 130 train_loss=-60.8792 val_gap=-60.7763 best=-60.7763@130 (11.2s)
+16:11:43   step 140 train_loss=-61.1028 val_gap=-61.1463 best=-61.1463@140 (12.0s)
+16:11:44   step 150 train_loss=-61.7875 val_gap=-61.4877 best=-61.4877@150 (12.9s)
+16:11:45   step 160 train_loss=-61.9958 val_gap=-61.7894 best=-61.7894@160 (13.7s)
+16:11:46   step 170 train_loss=-62.6556 val_gap=-62.0508 best=-62.0508@170 (14.6s)
+16:11:47   step 180 train_loss=-61.9208 val_gap=-62.3673 best=-62.3673@180 (15.5s)
+16:11:48   step 190 train_loss=-62.4222 val_gap=-62.5002 best=-62.5002@190 (16.3s)
+16:11:48   step 200 train_loss=-63.0847 val_gap=-62.6300 best=-62.6300@200 (17.1s)
+16:11:49   step 210 train_loss=-62.6111 val_gap=-62.9221 best=-62.9221@210 (18.0s)
+16:11:50   step 220 train_loss=-63.5764 val_gap=-62.9417 best=-62.9417@220 (18.9s)
+16:11:51   step 230 train_loss=-63.9250 val_gap=-63.1521 best=-63.1521@230 (19.7s)
+16:11:52   step 240 train_loss=-63.2667 val_gap=-63.0167 best=-63.1521@230 (20.5s)
+16:11:53   step 250 train_loss=-63.8458 val_gap=-63.2025 best=-63.2025@250 (21.4s)
+16:11:53   step 260 train_loss=-62.8403 val_gap=-63.1958 best=-63.2025@250 (22.2s)
+16:11:54   step 270 train_loss=-63.4625 val_gap=-63.5433 best=-63.5433@270 (23.1s)
+16:11:55   step 280 train_loss=-63.9528 val_gap=-63.5950 best=-63.5950@280 (23.9s)
+16:11:56   step 290 train_loss=-63.6097 val_gap=-63.7946 best=-63.7946@290 (24.8s)
+16:11:57   step 300 train_loss=-64.3681 val_gap=-63.8317 best=-63.8317@300 (25.7s)
+16:11:57 oriented v_grad toward refusal (flipped sign)
+16:11:57 v_grad best_val=-63.8317 cos(mm)=0.2127 cos(lr)=0.1212
+16:12:05 base massmean efficacy=3.8407 (int=-0.520 n=12) 8.1s
+16:12:13 base logistic efficacy=4.0775 (int=-1.195 n=12) 8.2s
+16:12:21 base grad     efficacy=30.1418 (int=+0.996 n=12) 8.2s
+16:12:22 base DONE margin=+0.812 | eff mm=3.841 lr=4.078 grad=30.142
+16:12:30 base freed 14.60 GB cache
+16:12:30 loading allenai/Olmo-3-7B-Think-SFT @ step1000 (9a45447cd5)
+16:13:01 loaded sft-1000 in 30.4s
+16:13:01 sft-1000 mu_L20 = 27.486
+16:13:09 sft-1000 massmean efficacy=4.5452 (int=-0.559 n=12) 8.2s
+16:13:17 sft-1000 logistic efficacy=4.8728 (int=-1.398 n=12) 8.2s
+16:13:26 sft-1000 grad     efficacy=30.9427 (int=+0.818 n=12) 8.3s
+16:13:26 sft-1000 DONE margin=+3.801 | eff mm=4.545 lr=4.873 grad=30.943
+16:13:34 sft-1000 freed 14.60 GB cache
+16:13:34 loading allenai/Olmo-3-7B-Think-DPO @ main (7b18bf927b)
+16:13:41 loaded dpo in 7.4s
+16:13:42 dpo mu_L20 = 25.999
+16:13:50 dpo massmean efficacy=3.9023 (int=-0.232 n=12) 8.2s
+16:13:58 dpo logistic efficacy=4.8278 (int=-0.986 n=12) 8.1s
+16:14:06 dpo grad     efficacy=21.3684 (int=-1.889 n=12) 8.3s
+16:14:06 dpo DONE margin=+5.572 | eff mm=3.902 lr=4.828 grad=21.368
+16:14:15 dpo freed 14.60 GB cache
+16:14:15 loading allenai/Olmo-3-7B-Instruct @ main (6e5971d9eb)
+16:14:46 loaded instruct in 30.9s
+16:14:46 instruct mu_L20 = 25.738
+16:14:54 instruct massmean efficacy=5.6122 (int=-0.499 n=12) 7.9s
+16:15:02 instruct logistic efficacy=6.3791 (int=-1.220 n=12) 7.8s
+16:15:10 instruct grad     efficacy=22.0697 (int=-2.714 n=12) 7.9s
+16:15:10 instruct DONE margin=+7.745 | eff mm=5.612 lr=6.379 grad=22.070
+16:15:18 instruct freed 14.60 GB cache
+16:15:18 === E1 done in 257.7s

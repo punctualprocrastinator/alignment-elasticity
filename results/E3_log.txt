@@ -1,0 +1,41 @@
+17:09:53 === E3 start; split fingerprint 99a7ac88967302166d6e1698d1eebae8d2fd9576; layers=[8, 12, 16, 20, 24, 28]
+17:09:53 loading allenai/Olmo-3-1025-7B @ main (a81bae42db)
+17:10:25 loaded base in 31.9s
+17:10:34 fit base dir L8 (massmean raw norm 2.515)
+17:10:34 fit base dir L12 (massmean raw norm 4.520)
+17:10:35 fit base dir L16 (massmean raw norm 8.794)
+17:10:35 fit base dir L20 (massmean raw norm 14.895)
+17:10:35 fit base dir L24 (massmean raw norm 22.506)
+17:10:35 fit base dir L28 (massmean raw norm 28.385)
+17:10:35 base mu per layer: {8: 9.88, 12: 12.96, 16: 17.84, 20: 27.95, 24: 38.75, 28: 50.1}
+17:10:40 base L 8 efficacy=0.6347 (4.3s)
+17:10:44 base L12 efficacy=-0.0288 (4.2s)
+17:10:48 base L16 efficacy=2.4399 (4.2s)
+17:10:52 base L20 efficacy=3.8407 (4.2s)
+17:10:56 base L24 efficacy=5.7424 (4.2s)
+17:11:01 base L28 efficacy=5.6377 (4.3s)
+17:11:01 base DONE margin=+0.812 eff_by_layer={8: 0.635, 12: -0.029, 16: 2.44, 20: 3.841, 24: 5.742, 28: 5.638}
+17:11:10 base freed 14.60 GB
+17:11:10 loading allenai/Olmo-3-7B-Think-SFT @ step1000 (9a45447cd5)
+17:11:40 loaded sft-1000 in 30.1s
+17:11:40 sft-1000 mu per layer: {8: 9.76, 12: 13.04, 16: 17.8, 20: 27.49, 24: 37.71, 28: 48.69}
+17:11:45 sft-1000 L 8 efficacy=1.7061 (4.3s)
+17:11:49 sft-1000 L12 efficacy=0.9124 (4.2s)
+17:11:53 sft-1000 L16 efficacy=3.3037 (4.2s)
+17:11:57 sft-1000 L20 efficacy=4.5452 (4.3s)
+17:12:02 sft-1000 L24 efficacy=6.0688 (4.2s)
+17:12:06 sft-1000 L28 efficacy=6.0822 (4.2s)
+17:12:06 sft-1000 DONE margin=+3.801 eff_by_layer={8: 1.706, 12: 0.912, 16: 3.304, 20: 4.545, 24: 6.069, 28: 6.082}
+17:12:15 sft-1000 freed 14.60 GB
+17:12:15 loading allenai/Olmo-3-7B-Instruct @ main (6e5971d9eb)
+17:12:45 loaded instruct in 29.9s
+17:12:45 instruct mu per layer: {8: 8.93, 12: 11.91, 16: 16.52, 20: 25.74, 24: 36.14, 28: 48.23}
+17:12:49 instruct L 8 efficacy=6.9589 (4.1s)
+17:12:53 instruct L12 efficacy=3.6762 (4.1s)
+17:12:57 instruct L16 efficacy=6.8217 (4.1s)
+17:13:01 instruct L20 efficacy=5.6122 (4.1s)
+17:13:05 instruct L24 efficacy=4.9327 (4.1s)
+17:13:10 instruct L28 efficacy=5.2464 (4.0s)
+17:13:10 instruct DONE margin=+7.745 eff_by_layer={8: 6.959, 12: 3.676, 16: 6.822, 20: 5.612, 24: 4.933, 28: 5.246}
+17:13:18 instruct freed 14.60 GB
+17:13:18 === E3 done in 205.0s

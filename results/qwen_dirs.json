@@ -1,0 +1,1 @@
+{"fit_layer": 22, "massmean_raw_norm": 77.26020463770051, "logistic": {"n_iter": 174, "converged": true, "train_acc": 1.0, "raw_norm": 0.5262270476269402, "tol": 1e-10, "C": 1.0}, "cos_massmean_logistic": 0.6468031508210177, "d_model": 4096, "fit_repo": "Qwen/Qwen3-8B-Base", "fit_trunc_frac": 0.0, "n_train": 200}

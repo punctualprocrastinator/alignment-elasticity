@@ -21,3 +21,21 @@ __pycache__/
 *.pyc
 .DS_Store
 .ipynb_checkpoints/
+
+# --- Other parallel paper tracks — NOT part of this public repo, keep private ---
+# Paper A (dead-salmon null-model test), Paper B (SaTML backdoor), Paper C (tail-gap)
+paper-A-*.md
+paper-B-*.md
+paper-C-*.md
+results/breadth_*.json
+results/deadsalmon_*.json
+results/cav_threshold_*.json
+results/concepts_*.json
+results/kseed_curve.json
+results/power_curve.json
+results/robustness.json
+results/sae_method.json
+figures/fig_deadsalmon_*.png
+figures/fig_cav_threshold_*.png
+figures/fig_power_curve.png
+figures/fig_robustness.png
