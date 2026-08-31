@@ -37,8 +37,8 @@ model's aligned descendants: ablate the direction and the base model complies, b
 model still refuses. We show the direction does not weaken. The target moves. Across the full
 OLMo-3 training flow the model's behavioural margin, its unsteered distance from the refusal
 decision boundary, grows \num{9.5}\x, from \num{0.81} to \num{7.75} logits, while the direction's
-per-dose steering efficacy stays nearly constant (coefficient of variation \num{0.13}, a \num{1.6}\x{} spread whose maximum is the aligned model itself; a
-gradient-trained direction, six times more efficient and near-orthogonal, is similarly near-constant (efficacy CV \num{0.196}). A fixed-magnitude intervention therefore fails on aligned models for one banal reason:
+per-dose steering efficacy stays nearly constant (coefficient of variation \num{0.13}, a \num{1.5}\x{} spread whose maximum is the aligned model itself; a
+gradient-trained direction, six times more efficient and near-orthogonal, is similarly near-constant, CV \num{0.196}). A fixed-magnitude intervention therefore fails on aligned models for one banal reason:
 the same push is now small against a far wider margin. This inverts a natural ranking. Under fixed
 ablation and fixed-dose steering the aligned model looks least controllable, crossing \SI{1}{\percent}
 of prompts where the base model crosses \SI{92}{\percent}, yet its per-dose lever is the strongest
@@ -97,7 +97,7 @@ model's onset long after it stops eliciting genuine harm.
   direction still flips an aligned model's refusal onset, but genuine (HarmBench-judged) harm decays
   with alignment, and prefix-based refusal metrics increasingly overstate compliance
   (\S\ref{sec:onset}).
-\item We give the honest scope: strict per-dose lever-invariance is clean on OLMo but not general
+\item We give the honest scope: the per-dose lever is non-weakening on OLMo (non-inferiority holds) but not general
   off it (approximate on Gemma, growing on Qwen and Llama); the universal, sufficient cause of the
   misranking is margin growth. All code, pinned commits, split fingerprints, and a
   discarded-statistic autopsy are released.
@@ -172,26 +172,28 @@ two confuse distance-to-boundary (load) with resistance-to-being-moved (lever).}
 
 \section{The lever is invariant; the load grows}\label{sec:lever}
 Measuring lever and load at ten points across the flow (Figure~\ref{fig:lever}), the displacement
-produced per unit dose ranges only \num{3.6}--\num{5.6} (a \num{1.6}\x{} spread, CV \num{0.13}) across the
+produced per unit dose ranges only \num{3.6}--\num{5.6} (a \num{1.5}\x{} spread, CV \num{0.13}) across the
 ten checkpoints (base, six Think post-training stages, Instruct, both RL-Zero variants), clearing the
 random-direction null everywhere ($z$~4--7). The residual dispersion is systematic, not noise: the
 aligned model has the \emph{largest} lever, so we call the lever non-weakening and mildly increasing
 for refusal, and reserve ``invariant'' for the honesty control (CV \num{0.021}). The per-layer L20 CV
 of \num{0.19} reported below is a distinct quantity, over a three-checkpoint layer-robustness subset,
 not this ten-point flow.
-A pre-registered non-inferiority test (equivalence margin $\Delta = 0.20\times$ base efficacy $= 0.77$;
+A non-inferiority test with a pre-stated equivalence margin ($\Delta = 0.20\times$ base efficacy $= 0.77$;
 paired bootstrap over prompts, 1000 resamples) establishes the lever as non-weakening at all nine
 post-training checkpoints: the worst case (SFT 43k) has paired difference vs base $-0.21$
 (95\% CI $[-0.30, -0.12]$), inside the margin, and the aligned Instruct model's lever is significantly
 \emph{above} base ($+1.77$, 95\% CI $[+1.64, +1.91]$), which is why we say mildly increasing rather than
 flat. The ten-checkpoint efficacy CV is \num{0.127} (95\% CI $[0.119, 0.137]$). Per-checkpoint efficacy
-CIs are in Table~\ref{tab:effci} (Appendix~A) and drawn on Figure~\ref{fig:lever}. Over the same span the margin climbs \num{9.5}\x, from \num{0.81} to
+CIs are in Table~\ref{tab:effci} (Appendix~A) and drawn on Figure~\ref{fig:lever}. The margin fold is \num{9.5}\x{} (95\% CI $[7.4, 13.7]$).
+
+The near-zero slope is a local quantity, but the fixed-dose audit acts at large dose where displacement saturates. We therefore also measure the saturation ceiling (maximum achievable mean displacement) and the secant lever to each model's own crossing dose. The ceiling exceeds the margin at every checkpoint (Instruct's is the largest, \num{11.2} vs its margin \num{7.75}), so every model can in fact be crossed: the aligned model does, behaviourally (refusal \num{1.00} to \num{0.18} at its own dose, \S\ref{sec:onset}). The fixed-dose audit fails because a fixed small push lands short of a wider margin, not because saturation blocks it, and the secant lever to the crossing dose is itself non-weakening (Instruct \num{5.99} vs base \num{6.42}). Over the same span the margin climbs \num{9.5}\x, from \num{0.81} to
 \num{7.75} logits. A fixed intervention delivers a fixed displacement (efficacy $\times$ dose); as
 the load grows tenfold while that displacement stays fixed, it crosses fewer prompts. The direction
 is not going stale. The target is receding.
 
 The invariance is not an artifact of how we fit the direction. A gradient-trained steering direction,
-six times more efficient (mean \num{26.1} vs \num{4.5}) and near-orthogonal to diff-in-means (cosine
+six times more efficient (mean \num{26.1} vs \num{4.48} over the four E1 checkpoints) and near-orthogonal to diff-in-means (cosine
 \num{0.21}), is similarly near-constant (efficacy CV \num{0.196}, against \num{0.13} for difference-in-means). The invariance holds across mid-to-late
 layers (per-layer CV: L20 \num{0.19}, L24 \num{0.11}, L28 \num{0.07}; early layers reorganise with
 alignment), and at 32B scale (CV \num{0.041}, margin \num{2.3}\x). It is a property of the direction
@@ -204,7 +206,7 @@ base $\rightarrow$ SFT $\rightarrow$ DPO $\rightarrow$ RLVR $\rightarrow$ Instru
 \num{9.5}\x{} (to \num{7.75} logits) while steering efficacy (lever) rises only to \num{1.46}\x{} of its
 base value. Over all ten OLMo checkpoints (the eight shown plus the two RL-Zero variants) efficacy has
 CV \num{0.13}. A fixed-magnitude ablation delivers a fixed displacement, so it fails on aligned models
-chiefly because the margin widened. Point estimates; per-checkpoint bootstrap CIs are in the released JSON.}
+chiefly because the margin widened. The lever line shows 95\% CIs; the margin fold is \num{9.5}\x{} (95\% CI $[7.4, 13.7]$).}
 \label{fig:lever}
 \end{figure}
 
@@ -243,7 +245,7 @@ claim is universal; strict lever-invariance is OLMo-specific.}
 \toprule
 family & margin growth & onset flip & onset$\leftrightarrow$harm dissoc. & strict lever-invariance \\
 \midrule
-OLMo-3-7B     & 9.5\x & yes & yes & \textbf{yes (CV 0.13)} \\
+OLMo-3-7B     & 9.5\x & yes & yes & \textbf{non-weakening (CV 0.13)} \\
 Qwen3-8B      & 3.7\x & yes & yes & no ($\sim$2.6\x, wide null) \\
 Llama-3.1-8B  & 9.8\x & yes$^{*}$ & (degeneration) & no (lever grows $\sim$4\x) \\
 Gemma-2-9B    & 5.9\x & yes (chat) & yes & approximate (5.2$\rightarrow$6.2) \\
@@ -324,7 +326,7 @@ to that usage.
 \section{What the measurement cannot decide}\label{sec:limits}
 \begin{itemize}\itemsep2pt
 \item \textbf{Strict efficacy-invariance is OLMo-specific.} On Qwen the lever grows $\sim$\num{2.6}\x{}
-  and its null is wide; we claim invariance for OLMo and approximate constancy elsewhere. The
+  and its null is wide; we claim non-weakening on OLMo (non-inferiority holds, \S\ref{sec:lever}) and approximate constancy elsewhere. The
   load-grows / audits-misrank claims are the general ones.
 \item \textbf{No matched-distance comparison.} Aligned models have essentially no near-boundary
   prompts, so there is no overlapping regime; efficacy sidesteps this by measuring the per-dose
@@ -354,7 +356,7 @@ fixed direction, or steers at a fixed magnitude, understates an aligned model's 
 the understatement grows with how thoroughly the model was aligned, because alignment widens the
 margin without touching the lever. The fix costs nothing: dose relative to the model's own unsteered
 margin, which the same sweep already measures. Conversely, an audit that reads refusal-onset as harm
-overstates compliance on exactly those aligned models: onset-control outlives harm-control, and
+overstates compliance on exactly those aligned models: onset-control appears to outlive harm-control (a second warning confounded with dose-driven degeneration, \S\ref{sec:limits}), and
 prefix metrics invert. The models we most want to stress-test are the ones both instruments most
 mislead.
 
@@ -364,7 +366,7 @@ steers the same, from the start of pretraining through RLVR, at 7B and 32B, for 
 more flatly) for honesty. What changes is how far the model has walked from its own decision
 boundary, demonstrated by a control concept, honesty, whose boundary barely moves and whose audit
 artifact barely appears. Measured in the right units, ``does the direction survive alignment?'' has
-a clean answer: the direction changed far less than the margin, and for refusal did not weaken at all.
+a clean answer: the direction changed far less than the margin; a non-inferiority test finds refusal non-weakening at every post-training checkpoint, and significantly stronger at the aligned endpoint.
 
 \paragraph{Reproducibility.} All code, pinned commits, split fingerprints, seeds, per-experiment
 result JSON, figure scripts, and the red-team appendix (including the discarded excess-displacement

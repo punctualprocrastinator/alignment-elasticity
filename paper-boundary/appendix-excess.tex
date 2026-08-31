@@ -32,7 +32,7 @@ RL-Zero Code & 0.957 & 1.88 & 0.35 \\
 \paragraph{Why efficacy does not inherit the confound.} The natural worry (raised by our own
 review) is that the replacement statistic, per-dose efficacy, might be confounded the same way. It
 is not: across the ten checkpoints, $\mathrm{corr}(\text{efficacy}, \text{gap-spread}) = -0.23$,
-far below the \num{0.93} that condemned excess displacement. Efficacy does carry a mild positive
+well below the \num{0.93} that condemned excess displacement, though at $n{=}10$ its 95\% CI $[-0.64, 0.53]$ straddles zero: efficacy shows \emph{no} significant confound with gap-spread, whereas excess displacement's \num{0.93} was extreme. Efficacy does carry a mild positive
 association with the margin itself ($\mathrm{corr} = +0.43$), which is exactly why we describe the
 refusal lever as non-weakening and mildly increasing rather than strictly invariant, and reserve
 ``invariant'' for the honesty control (efficacy CV \num{0.021}). Reporting a statistic we killed,
@@ -62,3 +62,5 @@ RL-Zero Code & 4.12 & [4.01, 4.23] \\
 \caption{Per-checkpoint steering efficacy (lever) with 95\% bootstrap CIs; Instruct is significantly above base.}
 \label{tab:effci}
 \end{table}
+
+\paragraph{Checkpoint-level robustness.} The efficacy CV \num{0.127} is a prompt-level bootstrap. A leave-one-checkpoint-out recomputation gives CV in $[0.060, 0.134]$ (dropping the aligned Instruct point gives the smallest, \num{0.060}), so no single checkpoint drives the flatness.
