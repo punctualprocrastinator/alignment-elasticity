@@ -337,10 +337,12 @@ to that usage.
   analysis and its confound are in Appendix~A.
 \item \textbf{Onset-vs-harm is confounded with dose-driven degeneration.} Flipping the aligned
   model's onset requires a large dose \emph{because} its margin is wide, and Appendix~B shows the
-  resulting completions are often degenerate. So the HarmBench decay is consistent with
-  ``large dose $\rightarrow$ incoherent output $\rightarrow$ no scoreable harm'' as well as with alignment
-  decoupling onset from harm; a coherence- or perplexity-matched harm measurement is needed to
-  separate them, and we do not yet localize \emph{why} onset-control outlives harm-control.
+  resulting completions are often degenerate. A cheap coherence proxy makes the confound concrete:
+  the aligned Instruct model's onset-flipped completions are \SI{93}{\percent} degenerate (near-total
+  token repetition) against \SI{17}{\percent} at base, so the HarmBench decay is plausibly
+  ``large dose $\rightarrow$ incoherent output $\rightarrow$ no scoreable harm'' rather than alignment
+  decoupling onset from harm. A coherence-gated harm re-measurement (released) is the definitive test;
+  until it is run we present the second warning as a hypothesis, not a finding.
 \item \textbf{Off-OLMo caveats.} Llama-3.1-8B and Gemma-2-9B use third-party mirrors (official repos
   gated), each verified full-precision bf16 with the expected parameter count. Off OLMo the
   random-direction efficacy null is wide ($z$~1--3); on Llama the base direction barely clears the
