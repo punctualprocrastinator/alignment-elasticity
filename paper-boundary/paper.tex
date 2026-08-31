@@ -1,0 +1,360 @@
+\documentclass[11pt]{article}
+
+% Self-contained; compiles with pdflatex + bibtex. Port to the venue style
+% (e.g. neurips_2026.sty) for camera-ready by swapping the preamble.
+\usepackage[margin=1in]{geometry}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{lmodern} % scalable font, required for microtype expansion
+\usepackage{microtype}
+\usepackage{amsmath,amssymb}
+\usepackage{graphicx}
+\usepackage{booktabs}
+\usepackage{array}
+\usepackage{caption}
+\usepackage{xcolor}
+\usepackage[numbers,round]{natbib}
+\usepackage[hidelinks]{hyperref}
+\usepackage{siunitx}
+
+\graphicspath{{figures/}}
+\captionsetup{font=small,labelfont=bf}
+\newcommand{\x}{$\times$}
+\setcitestyle{numbers,square}
+
+\title{\bfseries Distance to the Boundary Is Not Steering Resistance\\[2pt]
+\large Alignment widens the behavioural margin, not the steering lever, so
+fixed-dose steering audits misrank aligned models}
+\author{Anonymous submission}
+\date{}
+
+\begin{document}
+\maketitle
+
+\begin{abstract}
+A refusal direction fit on a base language model is widely reported to ``go stale'' on the
+model's aligned descendants: ablate the direction and the base model complies, but the aligned
+model still refuses. We show the direction does not weaken. The target moves. Across the full
+OLMo-3 training flow the model's behavioural margin, its unsteered distance from the refusal
+decision boundary, grows \num{9.5}\x, from \num{0.81} to \num{7.75} logits, while the direction's
+per-dose steering efficacy stays essentially constant (coefficient of variation \num{0.13}; a
+gradient-trained causal direction, six times more efficient and near-orthogonal, is equally
+invariant). A fixed-magnitude intervention therefore fails on aligned models for one banal reason:
+the same push is now small against a far wider margin. This inverts a natural ranking. Under fixed
+ablation and fixed-dose steering the aligned model looks least controllable, crossing \SI{1}{\percent}
+of prompts where the base model crosses \SI{92}{\percent}, yet its per-dose lever is the strongest
+in the set. Honesty supplies a causal control: its margin barely grows (\num{1.2}\x), and its audit
+artifact nearly vanishes, so margin growth drives the misranking rather than any property of the
+lever. The mechanism replicates across four model families (OLMo-3, Qwen3-8B, Llama-3.1-8B,
+Gemma-2-9B), where the margin grows between \num{3.7}\x{} and \num{9.8}\x. Margin growth alone is
+enough to cause the misranking, whatever the direction's own steering power does: it is invariant
+on OLMo, roughly so on Gemma, and grows on Qwen and Llama. The effect holds at larger scale
+(OLMo-3 32B). A second, independent warning follows: onset-control is not harm-control. The base
+direction still flips an aligned model's refusal onset to compliance, but HarmBench-judged genuine
+harm decays with alignment (\num{0.80} to \num{0.05} on OLMo, replicated on Qwen), and prefix-based
+refusal metrics increasingly overstate compliance, their correlation with true harm flipping from
+$+0.96$ to $-0.53$. Safety audits that ablate a fixed direction understate aligned-model
+controllability; audits that read refusal-onset as harm overstate it.
+\end{abstract}
+
+\section{Introduction}
+Activation steering finds a residual-stream direction that correlates with a behaviour and adds or
+subtracts it, and it is a standard tool for interpreting and controlling language models. A
+consequential question follows for anyone auditing a deployed model: does a direction found on an
+earlier checkpoint still control the behaviour after the model is aligned? If white-box safety
+interventions built on base-model analysis silently expire during alignment, they expire when they
+matter.
+
+The published answers disagree. One line of work reports that base-derived steering vectors remain
+effective on aligned instruct models \citep{personavectors}. Another reports that post-training
+directions steer better than pretraining ones \citep{olmoharmfulness}. A third, including our own
+earlier ablation experiments, reports that the base refusal direction loses its grip: ablate it and
+the aligned model keeps refusing \citep{arditi}. Three groups, three answers, one model family.
+
+We resolve the disagreement with one measurement and one distinction. Every prior study fixes the
+\emph{magnitude} of the intervention and reads the \emph{outcome}. But a fixed intervention is not a
+fair probe of two models whose behaviour sits at different distances from the decision boundary. An
+aligned model refuses hard; its margin is large; a fixed nudge moves it far and still leaves it
+refusing. We separate the \textbf{lever} (displacement produced per unit dose) from the
+\textbf{load} (the margin the lever must overcome), measure both across the OLMo-3 flow, and find
+the lever essentially constant while the load grows an order of magnitude. Honesty, a concept whose
+load does not grow, supplies the causal control. A validity check with an independent harm judge
+then reveals a second effect the onset-level view hides: the direction keeps flipping the aligned
+model's onset long after it stops eliciting genuine harm.
+
+\paragraph{Contributions.}
+\begin{itemize}\itemsep2pt
+\item We show that fixed-magnitude steering and ablation audits systematically misrank aligned
+  models as less controllable, and identify the cause: alignment widens the behavioural margin
+  (\num{3.7}\x--\num{9.8}\x{} across four model families) while the direction's per-dose lever does
+  not weaken (\S\ref{sec:instrument}--\S\ref{sec:lever}).
+\item We establish this causally with a control concept: honesty, whose margin barely grows
+  (\num{1.2}\x), shows essentially no audit artifact; margin growth, not the lever, drives the
+  misranking (\S\ref{sec:universal}).
+\item We report a second, opposite audit failure: onset-control is not harm-control. The base
+  direction still flips an aligned model's refusal onset, but genuine (HarmBench-judged) harm decays
+  with alignment, and prefix-based refusal metrics increasingly overstate compliance
+  (\S\ref{sec:onset}).
+\item We give the honest scope: strict per-dose lever-invariance is clean on OLMo but not general
+  off it (approximate on Gemma, growing on Qwen and Llama); the universal, sufficient cause of the
+  misranking is margin growth. All code, pinned commits, split fingerprints, and a
+  discarded-statistic autopsy are released.
+\end{itemize}
+
+\section{Setup}\label{sec:setup}
+\paragraph{Models.} The OLMo-3 7B family \citep{olmo3}, whose entire training flow is public: base;
+Think lineage at SFT 1k/15k/43k, DPO, first and last RLVR steps; Instruct; and two RL-Zero variants
+(RL applied directly to the base, no SFT). For generalization: OLMo-3 32B (base/SFT/DPO/RLVR-last)
+and three further base$\rightarrow$instruct families, Qwen3-8B, Llama-3.1-8B, and Gemma-2-9B (the
+latter two via full-precision community mirrors, verified bf16 with correct parameter counts, as
+the official repos are license-gated). Every checkpoint is pinned by commit hash.
+
+\paragraph{Directions.} A refusal direction at layer 20 (proportional layer for 32B/Qwen), fit once
+on the base model as the difference in mean residual-stream activation between 200 harmful
+\citep{advbench} and 200 benign \citep{alpaca} prompts under a neutral scaffold applied identically
+to every checkpoint, and carried unchanged to every descendant (this is the staleness question). We
+fit it three ways (difference-in-means, logistic regression at $\text{tol}=10^{-10}$, and a
+gradient-trained steering vector), which disagree geometrically (cosine \num{0.16}--\num{0.74}) yet
+agree on every conclusion. The honesty direction is fit the same way, on Azaria--Mitchell true/false
+statements \citep{azariamitchell}.
+
+\paragraph{Lever and load.} Steering uses $h_l \leftarrow h_l + c\,\mu_l\,\hat{v}$ (input-normalised,
+comparable across checkpoints). The readout is the concept's logit gap (refusal- vs
+compliance-onset tokens; ids fixed). The \emph{load} (margin) is the mean unsteered gap. The
+\emph{lever} (efficacy) is the slope of mean per-prompt displacement against $|c|$ in the near-zero
+regime (displacement saturates at large $|c|$; we use the linear region). We also measure
+behavioural efficacy (refusal-rate change vs dose on real generations) and validate genuine harm
+with the HarmBench classifier \citep{harmbench}.
+
+\paragraph{Rigour.} Every headline number carries a \SI{95}{\percent} bootstrap CI (1000 resamples;
+paired for comparisons) and a 20-direction random-direction null. Splits are fingerprinted; every
+refusal run reproduces the same fingerprint, and the base model reproduces bit-for-bit across
+sessions. Five pipeline smoke tests pass. We report where a claim is clean (OLMo) and where only
+approximate.
+
+\section{The instrument decides the answer}\label{sec:instrument}
+Rank the same four models (base, Instruct, two RL-Zero variants) by ``how steerable is refusal,''
+and the ranking depends entirely on the instrument. Reading each instrument's native metric off the
+same sweep (Table~\ref{tab:instruments}), fixed-magnitude ablation and fixed-dose steering, the two
+instruments the prior literature used, rank the aligned Instruct model last: it crosses \SI{1}{\percent}
+of prompts where base crosses \SI{92}{\percent}. Yet its per-dose lever is the strongest of the
+four. The instrument that reads ``uncontrollable'' is measuring the model with the most intact lever.
+
+\begin{table}[t]\centering\small
+\caption{Three instruments, three rankings of the same four models. Fixed-magnitude instruments
+rank the aligned model last; per-dose efficacy ranks it first.}
+\label{tab:instruments}
+\begin{tabular}{lcccc}
+\toprule
+model & fixed ablation & fixed dose & efficacy (lever) & margin \\
+\midrule
+base          & 1.00 & 0.92 & 3.84 & 0.81 \\
+\textbf{Instruct}     & \textbf{0.33} & \textbf{0.01} & \textbf{5.61} & 7.75 \\
+RL-Zero Math  & 1.00 & 0.88 & 4.01 & 0.99 \\
+RL-Zero Code  & 1.00 & 0.93 & 4.12 & 0.83 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\begin{figure}[t]\centering
+\includegraphics[width=0.72\linewidth]{fig1_three_instruments.png}
+\caption{Three instruments, three rankings of the same four models. (a)~Fixed-magnitude ablation
+and (b)~fixed-dose steering place the aligned model \emph{last}, the basis for ``base directions go
+stale.'' (c)~Per-dose efficacy places it \emph{first}. The disagreement is instrumental: the first
+two confuse distance-to-boundary (load) with resistance-to-being-moved (lever).}
+\label{fig:instruments}
+\end{figure}
+
+\section{The lever is invariant; the load grows}\label{sec:lever}
+Measuring lever and load at ten points across the flow (Figure~\ref{fig:lever}), the displacement
+produced per unit dose ranges only \num{3.6}--\num{5.6} (CV \num{0.13}) across base, six Think
+post-training stages, Instruct, and both RL-Zero variants, clearing the random-direction null
+everywhere ($z$~4--7). Over the same span the margin climbs \num{9.5}\x, from \num{0.81} to
+\num{7.75} logits. A fixed intervention delivers a fixed displacement (efficacy $\times$ dose); as
+the load grows tenfold while that displacement stays fixed, it crosses fewer prompts. The direction
+is not going stale. The target is receding.
+
+The invariance is not an artifact of how we fit the direction. A gradient-trained causal direction,
+six times more efficient (mean \num{26.1} vs \num{4.5}) and near-orthogonal to diff-in-means (cosine
+\num{0.21}), is equally invariant (efficacy CV \num{0.196}). The invariance holds across mid-to-late
+layers (per-layer CV: L20 \num{0.19}, L24 \num{0.11}, L28 \num{0.07}; early layers reorganise with
+alignment), and at 32B scale (CV \num{0.041}, margin \num{2.3}\x). It is a property of the direction
+as a control axis, not of the estimator, the layer, or the model size.
+
+\begin{figure}[t]\centering
+\includegraphics[width=0.72\linewidth]{fig2_lever_vs_load.png}
+\caption{The lever is invariant; only the load grows. Steering efficacy (displacement per unit dose)
+is flat across pretraining $\rightarrow$ SFT $\rightarrow$ DPO $\rightarrow$ RLVR (\num{3.6}--\num{5.6},
+CV \num{0.13}) while the behavioural margin it must overcome grows \num{9.5}\x. A fixed-magnitude
+ablation delivers a fixed displacement, so it fails on aligned models purely because the margin
+widened.}
+\label{fig:lever}
+\end{figure}
+
+\paragraph{Reconciliation.} ``Base vectors remain effective'': the lever is invariant. ``They go
+stale under fixed ablation'': the load grew, so a fixed removal no longer reaches the boundary.
+``Post-training directions steer better'': refit at a later checkpoint, a direction is simply
+calibrated to that checkpoint's larger load. Three reports, one invariant lever, seen through
+instruments that read the load as the lever.
+
+\section{The universal cause is margin growth; honesty is the causal control}\label{sec:universal}
+If margin growth causes the misranking, a concept whose margin does \emph{not} grow should show no
+misranking. Honesty is that control. Its per-dose lever is even flatter than refusal's (efficacy CV
+\num{0.021}), but across the same checkpoints its margin grows only \num{1.2}\x{}
+(\num{2.66}$\rightarrow$\num{3.21}): the model does not become dramatically more confidently honest.
+Correspondingly, the fixed-dose audit artifact that is dramatic for refusal nearly vanishes for
+honesty. This is the causal evidence, not just a correlation, that margin growth, not any change in
+the lever, drives the misranking; the artifact's magnitude tracks how much behavioural confidence a
+concept accrues during alignment.
+
+The mechanism generalizes across four model families (Table~\ref{tab:families}). For each we fit the
+refusal direction on the base model and carry it unchanged to the aligned model. The margin grows in
+every family (\num{3.7}\x--\num{9.8}\x, format-matched; native chat arms grow more), and in every
+family the fixed-dose audit misranks the aligned model. What the direction's own steering power does
+varies (invariant on OLMo, roughly so on Gemma, growing on Qwen and Llama), yet the misranking
+appears regardless. Margin growth is therefore the universal, sufficient cause; lever-invariance is
+not required for the audit to fail. OLMo is the family where the lever is provably invariant, making
+it the cleanest demonstration that the direction need not change at all for a fixed-dose audit to
+declare an aligned model uncontrollable. The result also replicates at scale (OLMo-3 32B: flat
+lever, CV \num{0.041}, margin \num{2.3}\x).
+
+\begin{table}[t]\centering\small
+\caption{The margin grows in every family; lever behaviour varies. The load-grows / audits-misrank
+claim is universal; strict lever-invariance is OLMo-specific.}
+\label{tab:families}
+\begin{tabular}{lcccc}
+\toprule
+family & margin growth & onset flip & onset$\leftrightarrow$harm dissoc. & strict lever-invariance \\
+\midrule
+OLMo-3-7B     & 9.5\x & yes & yes & \textbf{yes (CV 0.13)} \\
+Qwen3-8B      & 3.7\x & yes & yes & no ($\sim$2.6\x, wide null) \\
+Llama-3.1-8B  & 9.8\x & yes$^{*}$ & (degeneration) & no (lever grows $\sim$4\x) \\
+Gemma-2-9B    & 5.9\x & yes (chat) & yes & approximate (5.2$\rightarrow$6.2) \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\begin{figure}[t]\centering
+\includegraphics[width=\linewidth]{fig3_margin_universal_honesty.png}
+\caption{Margin growth is the universal driver. Left: refusal margin grows \num{9.5}\x{} while
+honesty's grows only \num{1.2}\x, yet both levers are flat, and the audit artifact appears for
+refusal but not honesty. Right: margin growth and the misranking replicate across Qwen3-8B, Llama-3.1-8B,
+Gemma-2-9B, and OLMo-3 32B (format-matched neutral scaffold).}
+\label{fig:universal}
+\end{figure}
+
+\section{Onset-control is not harm-control}\label{sec:onset}
+The lever's invariance is measured on the refusal onset, the first-token disposition. Routing it
+through full generations confirms the onset lever is non-circular: behavioural refusal-onset
+efficacy is invariant across checkpoints (CV \num{0.149}) while the margin grows, and the aligned
+model's refusal rate falls from \num{1.00} to \num{0.18} when dosed to its own boundary. But a
+validity check with the HarmBench classifier reveals a dissociation the onset view hides
+(Figure~\ref{fig:onset}). As alignment proceeds, flipping the onset stops producing genuine harm:
+HarmBench-judged harmful output at each model's crossing dose decays
+$0.80 \to 0.60 \to 0.45 \to 0.40 \to 0.05$ from base to Instruct, and heavy dosing merely
+degenerates the aligned model. The same dissociation replicates on Qwen (genuine harm
+$0.03\to0.75$ on base, $0.00\to0.20$ on the aligned model).
+
+This carries a methods warning beyond our setting: the correlation between a prefix/onset refusal
+classifier and true HarmBench harm flips from $+0.96$ to $-0.53$ across alignment. Prefix-based
+refusal metrics, ubiquitous in steering and jailbreak evaluations, increasingly overstate
+compliance on aligned models. Onset-control and harm-control must be measured separately. Appendix~B
+gives randomly selected aligned-model completions at the crossing dose.
+
+\begin{figure}[t]\centering
+\includegraphics[width=\linewidth]{fig4_onset_vs_harm.png}
+\caption{Onset-control survives; harm-control decays. The base direction still flips the aligned
+model's refusal onset (behavioural onset efficacy invariant, CV \num{0.149}), but HarmBench-judged
+genuine harm at the crossing dose decays $0.80\to0.05$ with alignment; a prefix refusal classifier's
+agreement with true harm flips $+0.96\to-0.53$.}
+\label{fig:onset}
+\end{figure}
+
+\section{Related work}\label{sec:related}
+\paragraph{Steering directions across training.} Several recent studies carry a base-model direction
+across the training flow. Persona-vector work \citep{personavectors} tracks trait directions through
+OLMo-3 pretraining and post-training and reports that base-derived vectors remain effective on
+aligned models; a checkpoint study of OLMo-3 refusal directions \citep{olmoharmfulness} reports that
+post-training directions steer better than pretraining ones; our own earlier ablations found the
+base refusal direction failing on the aligned model. The three results appear to conflict. We
+reconcile them: each fixes the intervention magnitude and reads an outcome, and that outcome depends
+on how far the model sits from its decision boundary. The persona-vector protocol normalises dose by
+the local residual-stream norm, an input-side quantity that does not equalise the boundary distance,
+which grows roughly tenfold across the flow (\S\ref{sec:lever}).
+
+\paragraph{Probing versus steering.} That a direction can be decodable without being an effective
+steering axis is established \citep{decodecontrol}. We do not re-establish the dissociation; we
+explain part of it developmentally. The per-dose steering lever is invariant across the OLMo flow
+(\S\ref{sec:lever}), so the apparent loss of control on an aligned model is not the direction
+weakening but the margin widening.
+
+\paragraph{Monitor and probe staleness under updates.} Frozen activation probes drift out of
+alignment under fine-tuning while the underlying signal survives \citep{monitorstaleness,fragility}.
+That work concerns readout: does a frozen probe still classify? Ours concerns control: does a fixed
+intervention still move behaviour? The two are complementary. Readout directions rotate, and we show
+that the control lever's per-dose strength does not decay, so the failure of fixed-magnitude control
+is attributable to the margin rather than the lever. Representation-geometry studies of the OLMo
+flow \citep{tracinggeometry} are likewise geometric rather than control-oriented.
+
+\paragraph{Refusal metrics and a naming note.} Prefix-based refusal detection is standard in
+steering and jailbreak evaluation. \S\ref{sec:onset} shows it inverts on aligned models,
+overstating compliance where genuine harm has not risen; classifiers that judge genuine harm
+\citep{harmbench} are the right instrument. Finally, ``elasticity'' has been used for a different
+phenomenon, the tendency of aligned models to revert toward pretraining behaviour under further
+fine-tuning \citep{jielasticity}; our subject is steerability under a fixed intervention, unrelated
+to that usage.
+
+\section{What the measurement cannot decide}\label{sec:limits}
+\begin{itemize}\itemsep2pt
+\item \textbf{Strict efficacy-invariance is OLMo-specific.} On Qwen the lever grows $\sim$\num{2.6}\x{}
+  and its null is wide; we claim invariance for OLMo and approximate constancy elsewhere. The
+  load-grows / audits-misrank claims are the general ones.
+\item \textbf{No matched-distance comparison.} Aligned models have essentially no near-boundary
+  prompts, so there is no overlapping regime; efficacy sidesteps this by measuring the per-dose
+  slope, and we do not claim distance-matched equality.
+\item \textbf{A negative result we discarded.} An ``excess displacement'' statistic (dose past each
+  model's boundary) correlates \num{0.93} with the spread of the unsteered-gap distribution, so it
+  restates that distribution rather than a steering property. We report efficacy instead; the excess
+  analysis and its confound are in Appendix~A.
+\item \textbf{Onset-vs-harm mechanism is unresolved.} We show the dissociation and a prefix-metric
+  failure; we do not yet localize why onset-control outlives harm-control (a verbalizable-workspace
+  hypothesis is future work).
+\item \textbf{Off-OLMo caveats.} Llama-3.1-8B and Gemma-2-9B use third-party mirrors (official repos
+  gated), each verified full-precision bf16 with the expected parameter count. Off OLMo the
+  random-direction efficacy null is wide ($z$~1--3); on Llama the base direction barely clears the
+  null and its lever grows with alignment. These do not affect the universal margin-growth /
+  misranking claim.
+\item \textbf{Scope.} One layer per model, one boundary metric per concept, two safety concepts,
+  four families; broader properties, layers, and lineages remain to be tested.
+\end{itemize}
+
+\section{Conclusion}\label{sec:conclusion}
+Two practical warnings, opposite in direction, both cheap to act on. A safety audit that ablates a
+fixed direction, or steers at a fixed magnitude, understates an aligned model's controllability, and
+the understatement grows with how thoroughly the model was aligned, because alignment widens the
+margin without touching the lever. The fix costs nothing: dose relative to the model's own unsteered
+margin, which the same sweep already measures. Conversely, an audit that reads refusal-onset as harm
+overstates compliance on exactly those aligned models: onset-control outlives harm-control, and
+prefix metrics invert. The models we most want to stress-test are the ones both instruments most
+mislead.
+
+The scientific core is a small, well-controlled invariant. The base refusal direction does not go
+stale, does not need refitting, and does not steer ``better'' after alignment. Per unit dose it
+steers the same, from the start of pretraining through RLVR, at 7B and 32B, for refusal and (even
+more flatly) for honesty. What changes is how far the model has walked from its own decision
+boundary, demonstrated causally by a concept, honesty, whose boundary barely moves and whose audit
+artifact barely appears. Measured in the right units, ``does the direction survive alignment?'' has
+a clean answer: the direction was never the thing that moved.
+
+\paragraph{Reproducibility.} All code, pinned commits, split fingerprints, seeds, per-experiment
+result JSON, figure scripts, and the red-team appendix (including the discarded excess-displacement
+result) are released. Every headline number carries a bootstrap CI and a random-direction null; the
+base model reproduces bit-for-bit.
+
+\bibliographystyle{plainnat}
+\bibliography{refs}
+
+\appendix
+\input{appendix-completions.tex}
+
+\end{document}

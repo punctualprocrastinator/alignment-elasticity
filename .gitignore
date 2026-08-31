@@ -39,3 +39,12 @@ figures/fig_deadsalmon_*.png
 figures/fig_cav_threshold_*.png
 figures/fig_power_curve.png
 figures/fig_robustness.png
+
+# LaTeX build artifacts (paper.pdf is committed; the rest regenerate)
+paper-boundary/*.aux
+paper-boundary/*.log
+paper-boundary/*.bbl
+paper-boundary/*.blg
+paper-boundary/*.out
+paper-boundary/*.synctex.gz
+paper-boundary/_preview*.png
