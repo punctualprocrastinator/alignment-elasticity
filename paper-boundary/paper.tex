@@ -301,16 +301,18 @@ on how far the model sits from its decision boundary. The persona-vector protoco
 the local residual-stream norm, an input-side quantity that does not equalise the boundary distance,
 which grows roughly tenfold across the flow (\S\ref{sec:lever}).
 
-\paragraph{Probing versus steering.} That a direction can be decodable without being an effective
-steering axis is established \citep{decodecontrol}. We do not re-establish the dissociation; we
-explain part of it developmentally. The per-dose steering lever is invariant across the OLMo flow
-(\S\ref{sec:lever}), so the apparent loss of control on an aligned model is not the direction
-weakening but the margin widening.
+\paragraph{Probing versus steering.} The relationship between a direction's linear decodability and
+its efficacy as a causal control axis has been studied directly \citep{decodecontrol}. We add a
+developmental reading of one failure of control: the per-dose steering lever is invariant across the
+OLMo flow (\S\ref{sec:lever}), so the apparent loss of control on an aligned model is not the
+direction weakening but the margin widening.
 
-\paragraph{Monitor and probe staleness under updates.} Frozen activation probes drift out of
-alignment under fine-tuning while the underlying signal survives \citep{monitorstaleness,fragility}.
-That work concerns readout: does a frozen probe still classify? Ours concerns control: does a fixed
-intervention still move behaviour? The two are complementary. Readout directions rotate, and we show
+\paragraph{Monitor and probe staleness under updates.} Frozen activation monitors can go stale under
+model updates, but the effect is conditional: fine-tuning-style updates frequently degrade a probe
+while quantization-style updates largely preserve it, and fragility is strongly monitor-dependent
+\citep{monitorstaleness}. That work concerns readout: does a frozen probe still classify? Ours
+concerns control: does a fixed intervention still move behaviour? The two are complementary.
+Readout directions rotate, and we show
 that the control lever's per-dose strength does not decay, so the failure of fixed-magnitude control
 is attributable to the margin rather than the lever. Representation-geometry studies of the OLMo
 flow \citep{tracinggeometry} are likewise geometric rather than control-oriented.
