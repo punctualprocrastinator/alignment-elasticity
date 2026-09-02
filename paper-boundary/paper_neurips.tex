@@ -1,8 +1,10 @@
 \documentclass{article}
 
-% NeurIPS 2026 venue build. geometry + times come from neurips_2026.sty;
-% nonatbib lets us keep numbered/square citations via our own natbib.
-\usepackage[preprint,nonatbib]{neurips_2026}
+% NeurIPS 2026 workshop build (InterpScience, double-blind track). geometry +
+% times come from neurips_2026.sty; nonatbib keeps our numbered/square natbib.
+% For submission the track is anonymized with line numbers; switch to
+% sglblindworkshop only if the CFP is single-blind, add `final` for camera-ready.
+\usepackage[dblblindworkshop,nonatbib]{neurips_2026}
 \usepackage[utf8]{inputenc}
 \usepackage[T1]{fontenc}
 \usepackage{microtype}
@@ -24,6 +26,7 @@
 \title{\bfseries Distance to the Boundary Is Not Steering Resistance\\[2pt]
 \large Alignment widens the behavioural margin, not the steering lever, so
 fixed-dose steering audits misrank aligned models}
+\workshoptitle{Interpretability as a Science (InterpScience)}
 \author{Anonymous submission}
 \date{}
 
