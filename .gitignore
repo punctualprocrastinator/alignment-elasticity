@@ -48,3 +48,4 @@ paper-boundary/*.blg
 paper-boundary/*.out
 paper-boundary/*.synctex.gz
 paper-boundary/_preview*.png
+paper-boundary/
