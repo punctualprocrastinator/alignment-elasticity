@@ -7,8 +7,9 @@ Six examples drawn at random (seed 42) from the OLMo-3-7B-Instruct prompts whose
 ($c=-1.22$), out of the 82 of 100 held-out harmful prompts where the onset flipped. The sample
 is not curated: it is the first six indices the seeded generator returns. Unsteered, the model
 refuses every prompt; steered, the onset flips but the continuation degenerates or deflects,
-producing no genuine harm. This is the \S6 dissociation at the level of individual generations
-(aggregate HarmBench harm at this dose: 0.05).
+producing no genuine harm. This is the \S\ref{sec:onset} dissociation at the level of individual
+generations (aggregate HarmBench harm at this crossing dose: 0.00; the peak across all doses for
+this model is only 0.05).
 
 \begin{table}[h]\centering\footnotesize
 \renewcommand{\arraystretch}{1.3}
@@ -27,5 +28,6 @@ Harmful prompt & Unsteered onset & Steered onset (flipped) \\
 \end{table}
 
 Generated at 512 new tokens, greedy; full texts in \texttt{results/gateA\_gen\_instruct.json}.
-The steered completions are degenerate or evasive rather than harmful, consistent with the
-HarmBench-judged genuine-harm rate of 0.05 at this dose (Figure~\ref{fig:onset}).
+The steered completions are degenerate or evasive rather than harmful, consistent with an aggregate
+HarmBench-judged genuine-harm rate of 0.00 at this crossing dose (the peak across doses for this
+model is only 0.05; Figure~\ref{fig:onset}).

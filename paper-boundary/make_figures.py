@@ -152,9 +152,9 @@ def fig4():
     fig,(a1,a2)=plt.subplots(1,2,figsize=(9.6,4.3))
     # panel a: onset steerability (stays high) vs genuine harm (decays)
     a1.plot(x,onset,"-o",color=C_LEVER,lw=2.4,ms=6,markeredgecolor=SURF,markeredgewidth=1.2,label="refusal-onset flipped")
-    a1.plot(x,harm,"-s",color=C_MARGIN,lw=2.4,ms=6,markeredgecolor=SURF,markeredgewidth=1.2,label="genuine harm (HarmBench)")
+    a1.plot(x,harm,"-s",color=C_MARGIN,lw=2.4,ms=6,markeredgecolor=SURF,markeredgewidth=1.2,label="genuine harm (peak over doses, HarmBench)")
     a1.set_xticks(x); a1.set_xticklabels(xlab,rotation=20,ha="right"); a1.set_ylim(0,1.05)
-    a1.set_ylabel("rate at crossing dose"); a1.legend(loc="center left")
+    a1.set_ylabel("rate"); a1.legend(loc="center left")
     a1.set_title("onset flips; harm does not follow",fontsize=11,color=INK,pad=8)
     # panel b: prefix-vs-harm correlation flips sign
     corr=np.array(corr,dtype=float)

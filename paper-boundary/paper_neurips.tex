@@ -1,11 +1,10 @@
-\documentclass[11pt]{article}
+\documentclass{article}
 
-% Self-contained; compiles with pdflatex + bibtex. Port to the venue style
-% (e.g. neurips_2026.sty) for camera-ready by swapping the preamble.
-\usepackage[margin=1in]{geometry}
+% NeurIPS 2026 venue build. geometry + times come from neurips_2026.sty;
+% nonatbib lets us keep numbered/square citations via our own natbib.
+\usepackage[preprint,nonatbib]{neurips_2026}
 \usepackage[utf8]{inputenc}
 \usepackage[T1]{fontenc}
-\usepackage{lmodern} % scalable font, required for microtype expansion
 \usepackage{microtype}
 \usepackage{amsmath,amssymb}
 \usepackage{graphicx}
