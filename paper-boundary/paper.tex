@@ -68,9 +68,10 @@ matter.
 
 The published answers disagree. One line of work reports that base-derived steering vectors remain
 effective on aligned instruct models \citep{personavectors}. Another reports that post-training
-directions steer better than pretraining ones \citep{olmoharmfulness}. A third, including our own
-earlier ablation experiments, reports that the base refusal direction loses its grip: ablate it and
-the aligned model keeps refusing \citep{arditi}. Three groups, three answers, one model family.
+directions steer better than pretraining ones \citep{olmoharmfulness}. A third, from our own
+earlier experiments with the single-direction ablation method of \citet{arditi}, finds that the
+base refusal direction loses its grip: ablate it and the aligned model keeps refusing. Three
+groups, three answers, one model family.
 
 We resolve the disagreement with one measurement and one distinction. Every prior study fixes the
 \emph{magnitude} of the intervention and reads the \emph{outcome}. But a fixed intervention is not a
@@ -314,8 +315,9 @@ while quantization-style updates largely preserve it, and fragility is strongly 
 concerns control: does a fixed intervention still move behaviour? The two are complementary.
 Readout directions rotate, and we show
 that the control lever's per-dose strength does not decay, so the failure of fixed-magnitude control
-is attributable to the margin rather than the lever. Representation-geometry studies of the OLMo
-flow \citep{tracinggeometry} are likewise geometric rather than control-oriented.
+is attributable to the margin rather than the lever. Representation-geometry studies spanning
+pretraining to post-training \citep{tracinggeometry} are likewise geometric rather than
+control-oriented.
 
 \paragraph{Refusal metrics and a naming note.} Prefix-based refusal detection is standard in
 steering and jailbreak evaluation. \S\ref{sec:onset} shows it inverts on aligned models,
