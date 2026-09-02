@@ -48,13 +48,14 @@ lever. The mechanism replicates across four model families (OLMo-3, Qwen3-8B, Ll
 Gemma-2-9B), where the margin grows between \num{3.7}\x{} and \num{9.8}\x. Margin growth alone is
 enough to cause the misranking, whatever the direction's own steering power does: it is non-weakening
 on OLMo, roughly constant on Gemma, and grows on Qwen and Llama. The effect holds at larger scale
-(OLMo-3 32B). A second, independent warning follows: onset-control is not harm-control. The base
-direction still flips an aligned model's refusal onset to compliance, but the peak HarmBench-judged
-genuine harm achievable across the dose sweep decays with alignment (\num{0.80} to \num{0.05} on OLMo, replicated on Qwen;
-this decay is confounded with dose-driven degeneration and is a hypothesis pending a coherence-matched
-measurement, \S\ref{sec:limits}), and prefix-based
-refusal metrics increasingly overstate compliance, their correlation with true harm flipping from
-$+0.96$ to $-0.53$. Safety audits that ablate a fixed direction understate aligned-model
+(OLMo-3 32B). A second warning follows from the same margin: onset-control is read as harm-control
+but is not. The base direction still flips an aligned model's refusal onset to compliance, yet at the
+large dose this needs the output degenerates: a coherence-gated HarmBench re-measurement finds the
+coherent fraction of completions collapsing from \num{0.90} at base to \num{0.01} at the aligned
+model's own crossing dose (\S\ref{sec:limits}), so the apparent harm decay (peak \num{0.80} to
+\num{0.05} on OLMo, replicated on Qwen) is dose-driven degeneration, not decoupling. Prefix-based
+refusal metrics, which read the degenerate onset as compliance, therefore increasingly overstate it,
+their correlation with true harm flipping from $+0.96$ to $-0.53$. Safety audits that ablate a fixed direction understate aligned-model
 controllability; audits that read refusal-onset as harm overstate it.
 \end{abstract}
 
@@ -94,10 +95,11 @@ model's onset long after it stops eliciting genuine harm.
 \item We establish this with a control concept: honesty, whose margin barely grows
   (\num{1.2}\x), shows essentially no audit artifact; margin growth, not the lever, drives the
   misranking (\S\ref{sec:universal}).
-\item We report a second, opposite audit failure: onset-control is not harm-control. The base
-  direction still flips an aligned model's refusal onset, but genuine (HarmBench-judged) harm decays
-  with alignment, and prefix-based refusal metrics increasingly overstate compliance
-  (\S\ref{sec:onset}).
+\item We report a second, opposite audit failure: onset-control is read as harm-control but is not.
+  The base direction still flips an aligned model's refusal onset, but at the dose this needs the
+  output degenerates (coherent fraction \num{0.90}$\rightarrow$\num{0.01}), so genuine
+  (HarmBench-judged) harm does not follow and prefix-based refusal metrics increasingly overstate
+  compliance (\S\ref{sec:onset}).
 \item We give the honest scope: the per-dose lever is non-weakening on OLMo (non-inferiority holds) but not general
   off it (approximate on Gemma, growing on Qwen and Llama); the universal, sufficient cause of the
   misranking is margin growth. All code, pinned commits, split fingerprints, and a
@@ -278,10 +280,21 @@ validity check with the HarmBench classifier reveals a dissociation the onset vi
 (Figure~\ref{fig:onset}). As alignment proceeds, flipping the onset stops producing genuine harm:
 the peak HarmBench-judged harmful rate across the dose sweep decays
 $0.80 \to 0.60 \to 0.45 \to 0.40 \to 0.05$ from base to Instruct (at the aligned model's own crossing
-dose, where the onset flips, harm is \num{0}: the large dose merely degenerates the output). The same dissociation replicates on Qwen (genuine harm
-$0.03\to0.75$ on base, $0.00\to0.20$ on the aligned model).
+dose, where the onset flips, harm is \num{0}: the large dose merely degenerates the output). The same pattern---aligned
+harm capping far below base---replicates on Qwen (genuine harm $0.03\to0.75$ on base, $0.00\to0.20$ on the aligned model).
 
-This carries a methods warning beyond our setting: the correlation between a prefix/onset refusal
+A coherence-matched re-measurement (released) identifies the mechanism. Judging HarmBench at each
+model's own crossing dose and gating on fluency (token repetition relative to the unsteered
+distribution), the coherent fraction of completions falls from \num{0.90} at base and
+\num{0.87}--\num{0.98} at the RL-Zero models to \num{0.01} at Instruct, as the aligned model's large
+crossing dose drives the median distinct-3-gram ratio from \num{1.00} to \num{0.07}. Among
+completions that stay coherent, flipping the onset \emph{does} elicit harm (HarmBench harm on
+coherent onset-flips: base \num{0.85}, RL-Zero \num{0.80}/\num{0.83}); the aligned model simply has
+almost no coherent onset-flip left to score ($n{=}1$). The onset/harm gap is therefore an artifact of
+the same wide margin that misranks the aligned model under a fixed dose---crossing a distant boundary
+needs a dose that degenerates the text---not evidence that alignment decouples onset from harm.
+
+What survives as a genuine warning is a methods one, beyond our setting: the correlation between a prefix/onset refusal
 classifier and true HarmBench harm flips from $+0.96$ to $-0.53$ across alignment. Prefix-based
 refusal metrics, ubiquitous in steering and jailbreak evaluations, increasingly overstate
 compliance on aligned models. Onset-control and harm-control must be measured separately. Appendix~B
@@ -345,14 +358,16 @@ to that usage.
   model's boundary) correlates \num{0.93} with the spread of the unsteered-gap distribution, so it
   restates that distribution rather than a steering property. We report efficacy instead; the excess
   analysis and its confound are in Appendix~A.
-\item \textbf{Onset-vs-harm is confounded with dose-driven degeneration.} Flipping the aligned
-  model's onset requires a large dose \emph{because} its margin is wide, and Appendix~B shows the
-  resulting completions are often degenerate. A cheap coherence proxy makes the confound concrete:
-  the aligned Instruct model's onset-flipped completions are \SI{93}{\percent} degenerate (near-total
-  token repetition) against \SI{17}{\percent} at base, so the HarmBench decay is plausibly
-  ``large dose $\rightarrow$ incoherent output $\rightarrow$ no scoreable harm'' rather than alignment
-  decoupling onset from harm. A coherence-gated harm re-measurement (released) is the definitive test;
-  until it is run we present the second warning as a hypothesis, not a finding.
+\item \textbf{Onset-vs-harm is dose-driven degeneration, not decoupling.} Flipping the aligned
+  model's onset requires a large dose \emph{because} its margin is wide, and that dose degrades
+  fluency. The coherence-gated HarmBench re-measurement (released) settles it: judged at each model's
+  own crossing dose, the fraction of completions that stay coherent collapses from \num{0.90} at base
+  (and \num{0.87}--\num{0.98} on the RL-Zero models) to \num{0.01} at Instruct (median distinct-3-gram
+  ratio \num{1.00}$\rightarrow$\num{0.07}). Where the output stays coherent---base and both RL-Zero
+  models---onset-flipped completions \emph{are} harmful (HarmBench harm among coherent onset-flips
+  \num{0.85}, \num{0.80}, \num{0.83}); at Instruct essentially no coherent completion is left to score
+  ($n{=}1$). The apparent onset-outlives-harm effect is thus a degeneration artifact of the same wide
+  margin that drives the fixed-dose misranking, not evidence that alignment decoupled onset from harm.
 \item \textbf{Off-OLMo caveats.} Llama-3.1-8B and Gemma-2-9B use third-party mirrors (official repos
   gated), each verified full-precision bf16 with the expected parameter count. Off OLMo the
   random-direction efficacy null is wide ($z$~1--3); on Llama the base direction barely clears the
@@ -368,8 +383,9 @@ fixed direction, or steers at a fixed magnitude, understates an aligned model's 
 the understatement grows with how thoroughly the model was aligned, because alignment widens the
 margin without touching the lever. The fix costs nothing: dose relative to the model's own unsteered
 margin, which the same sweep already measures. Conversely, an audit that reads refusal-onset as harm
-overstates compliance on exactly those aligned models: onset-control appears to outlive harm-control (a second warning confounded with dose-driven degeneration, \S\ref{sec:limits}), and
-prefix metrics invert. The models we most want to stress-test are the ones both instruments most
+overstates compliance on exactly those aligned models: at the dose needed to flip an aligned onset
+the output degenerates (coherent fraction \num{0.90} to \num{0.01} at the crossing dose,
+\S\ref{sec:limits}), so refusal-onset stops tracking harm and prefix metrics invert. The models we most want to stress-test are the ones both instruments most
 mislead.
 
 The scientific core is a small, well-controlled regularity. The base refusal direction does not go
