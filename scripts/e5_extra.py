@@ -212,6 +212,8 @@ def run_family(fam, do_generation=True):
         harm = list(data["harm_held"])
         gen_prompts = harm[:N_GEN]
         log("=== E5-%s start; split %s" % (fam, fp))
+        if fp != ga.EXPECTED_SPLIT_FP:
+            raise RuntimeError("split fingerprint mismatch: %s (STOP)" % fp)
         v_mm = v_lr = None
         fit_layer = None
         fit_commit = None

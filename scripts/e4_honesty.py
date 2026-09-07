@@ -88,6 +88,12 @@ def load_am_split(cache_path, seed=SPLIT_SEED):
 
     fit_t, fit_f = pool(FIT_TOPICS)
     held_t, _held_f = pool(HELD_TOPICS)
+    # The cities and capitals Azaria-Mitchell sets share a country template, so
+    # pooling FIT and HELD topics independently leaks a few identical statements
+    # into both (e.g. "Chile is a name of a country."). Subtract them from the
+    # held side so the eval set is strictly disjoint from the fit set.
+    _fit_seen = set(fit_t) | set(fit_f)
+    held_t = [s for s in held_t if s not in _fit_seen]
     rng = _random.Random(seed)
     rng.shuffle(fit_t)
     rng.shuffle(fit_f)

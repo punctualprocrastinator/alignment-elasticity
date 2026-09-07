@@ -30,6 +30,11 @@ import pipeline as P
 
 SEED = 42          # protocol P1; pipeline.py's own SEED=20260805 is NOT used
 SPLIT_SEED = 42    # prompt-shuffle seed, recorded with a fingerprint
+
+# The one split every experiment must share. HARM_URL is pinned to a BRANCH, not
+# a commit, so a re-download on a fresh box can silently shift the split; every
+# entry point should assert this rather than only logging it.
+EXPECTED_SPLIT_FP = "99a7ac88967302166d6e1698d1eebae8d2fd9576"
 FIT_LAYER = 20
 STEER_LAYER = 20
 MAX_LEN = 384

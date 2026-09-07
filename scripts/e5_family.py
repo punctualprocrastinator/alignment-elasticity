@@ -287,6 +287,10 @@ def e5_worker(art=E5_ART, ga_art=GA_ART, batch_size=BATCH, n_rand=N_RAND,
                               cache_path=pth["prompts"])
         fp = ga.split_fingerprint(data)
         log("=== E5 second family start; refusal split fingerprint %s" % fp)
+        # E2 raises on mismatch; E5 only logged, so a re-download of HARM_URL
+        # (pinned to a branch, not a commit) could silently shift the split.
+        if fp != ga.EXPECTED_SPLIT_FP:
+            raise RuntimeError("split fingerprint mismatch: %s (STOP)" % fp)
         harm_held = list(data["harm_held"])
         gen_prompts = harm_held[:n_gen]
         zero_index = C_GRID.index(0.0)
