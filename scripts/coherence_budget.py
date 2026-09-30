@@ -107,3 +107,55 @@ def main():
 
 if __name__ == "__main__":
     main()
+
+
+# ---------------------------------------------------------------------------
+# Threshold-free budget: c_half
+#
+# The BUDGET_FRAC threshold above is arbitrary, and worse, it is evaluated on a
+# grid that is c50-RELATIVE: each model was swept at c50 x [0.5, 1, 1.5, ...],
+# so the smallest dose ever tested scales with c50 (base 0.136, instruct 0.612,
+# 4.5x coarser). For dpo/rlvr/instruct the thresholded budget came out exactly
+# equal to their first nonzero dose, i.e. it was bounded above by the grid floor
+# and never actually resolved.
+#
+# c_half instead interpolates each model's own coherence-vs-dose curve and takes
+# the dose where the coherent fraction crosses 0.50. It is threshold-free in the
+# sense that 0.50 is a property of the curve's midpoint rather than a cutoff
+# imposed on a coarse grid, and it uses all the doses rather than the first one
+# that clears a bar.
+#
+# CAVEAT that the fine-grid experiment must fix: instruct's c_half is
+# interpolated across a 0.61-wide gap (its only bracketing doses are 0.612 and
+# 1.224), so it is suggestive, not resolved. base's is bracketed within 0.136.
+# The aligned models are exactly the ones whose budget is least well measured.
+def c_half(doses, level=0.50):
+    """Dose at which the coherent fraction crosses `level`, by linear interp."""
+    import numpy as np
+    ds = sorted(doses, key=lambda d: abs(d["coeff"]))
+    x = np.array([abs(d["coeff"]) for d in ds])
+    y = np.array([d["coherent_frac"] for d in ds])
+    if not (y.min() <= level <= y.max()):
+        return float("nan")
+    return float(np.interp(level, y[::-1], x[::-1]))
+
+
+def budget_report(path=OUT):
+    """c_half, c_cross and their ratio. Ratio >= 1 predicts within-budget steerability."""
+    import numpy as np
+    cb = json.load(open(path))
+    print("%-11s %9s %9s %8s %s" % ("ckpt", "c_half", "c_cross", "ratio", "steerable?"))
+    out = {}
+    for lab, r in cb["checkpoints"].items():
+        ch = c_half(r["doses"])
+        cc = abs(r["c50"])
+        out[lab] = dict(c_half=ch, c_cross=cc, ratio=ch / cc)
+        print("%-11s %9.3f %9.3f %8.2f %s"
+              % (lab, ch, cc, ch / cc, "YES" if ch / cc >= 1 else "no"))
+    v = np.array([out[l]["c_half"] for l in out])
+    print("\nbudget spread %.2fx (%.3f-%.3f) vs c_cross spread %.2fx"
+          % (v.max() / v.min(), v.min(), v.max(),
+             max(out[l]["c_cross"] for l in out) / min(out[l]["c_cross"] for l in out)))
+    cb["c_half"] = out
+    json.dump(cb, open(path, "w"), indent=1)
+    return out
