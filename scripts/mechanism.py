@@ -74,9 +74,15 @@ def load_split():
 
 def load_base_direction():
     """The frozen base refusal direction the sweeps used."""
+    # directions.npz stores {massmean, logistic, layer}; there is no "direction"
+    # key. massmean is difference-in-means, matching the committed gaps_massmean
+    # sweeps. The old positional fallback picked it by luck, not by intent.
     z = np.load(os.path.join(GA_ART, "directions.npz"))
-    key = "direction" if "direction" in z else list(z.keys())[0]
-    v = np.asarray(z[key], dtype=np.float64).ravel()
+    if "massmean" not in z:
+        raise KeyError("directions.npz has %s" % list(z.keys()))
+    if "layer" in z and int(z["layer"]) != FIT_LAYER:
+        raise RuntimeError("direction fit at layer %d, expected %d" % (int(z["layer"]), FIT_LAYER))
+    v = np.asarray(z["massmean"], dtype=np.float64).ravel()
     return v / (np.linalg.norm(v) + 1e-12)
 
 

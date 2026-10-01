@@ -65,6 +65,25 @@ def log(m):
     print("[%s] %s" % (time.strftime("%H:%M:%S"), m), flush=True)
 
 
+def load_base_direction(key="massmean"):
+    """The frozen base direction the committed sweeps steered with.
+
+    directions.npz stores {massmean, logistic, layer} -- there is no key called
+    'direction'. `massmean` is difference-in-means, which is what the paper's
+    `gaps_massmean` sweeps used, so it is the one to carry here. Asserts the
+    recorded fit layer matches, since a direction fitted at another layer would
+    be silently wrong rather than an error.
+    """
+    z = np.load(os.path.join(GA_ART, "directions.npz"))
+    if key not in z:
+        raise KeyError("directions.npz has %s, not %r" % (list(z.keys()), key))
+    lay = int(z["layer"]) if "layer" in z else FIT_LAYER
+    if lay != FIT_LAYER:
+        raise RuntimeError("directions.npz was fit at layer %d, expected %d" % (lay, FIT_LAYER))
+    v = np.asarray(z[key], dtype=np.float64).ravel()
+    return v / (np.linalg.norm(v) + 1e-12)
+
+
 def per_prompt_lever(gaps, c_grid, window=1.0):
     """Through-origin displacement slope for EACH prompt (matches lever.py)."""
     g = np.asarray(gaps, float)
@@ -91,9 +110,7 @@ def run(labels):
     rng = np.random.default_rng(ga.SEED)
     shuf_labels = rng.permutation(fit_labels)          # null-floor arm
 
-    z = np.load(os.path.join(GA_ART, "directions.npz"))
-    v_base = np.asarray(z["direction"], float).ravel()
-    v_base /= np.linalg.norm(v_base) + 1e-12
+    v_base = load_base_direction()
     log("split %s | fit %d | held %d | %d checkpoints"
         % (fp[:8], len(fit_prompts), len(harm_held), len(labels)))
 

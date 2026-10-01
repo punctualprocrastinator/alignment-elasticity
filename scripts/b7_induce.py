@@ -139,8 +139,9 @@ def run(steps):
     sft_texts, sft_prov = build_sft_data(data)
     log("split %s | held %d | sft %d (disjoint asserted)" % (fp[:8], len(harm_held), len(sft_texts)))
 
+    # key is "massmean" (difference-in-means); there is no "direction" key.
     z = np.load(os.path.join(GA_ART, "directions.npz"))
-    v_base = np.asarray(z["direction"], dtype=np.float64).ravel()
+    v_base = np.asarray(z["massmean"], dtype=np.float64).ravel()
     v_base /= np.linalg.norm(v_base) + 1e-12
 
     model = P.load_model(BASE_REPO)
