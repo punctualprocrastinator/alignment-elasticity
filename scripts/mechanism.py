@@ -160,8 +160,8 @@ def run():
             )
 
         # --- B4: readout decomposition of the margin ---
-        r_ids = P.onset_token_ids(tok, P.REFUSAL_STRS)
-        c_ids = P.onset_token_ids(tok, P.COMPLY_STRS)
+        r_ids, _rs, _rd = P.onset_token_ids(tok, P.REFUSAL_STRS)
+        c_ids, _cs, _cd = P.onset_token_ids(tok, P.COMPLY_STRS)
         u = readout_vector(model, r_ids, c_ids)
         H = final_hidden(model, tok, harm_held)
         hbar = H.mean(0)

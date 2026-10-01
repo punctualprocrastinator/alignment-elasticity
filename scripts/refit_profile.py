@@ -124,8 +124,9 @@ def run(labels):
         t0 = time.time()
         model = P.load_model(repo, revision=rev)
         tok = P.load_tokenizer(repo, revision=rev)
-        r_ids = P.onset_token_ids(tok, P.REFUSAL_STRS)
-        c_ids = P.onset_token_ids(tok, P.COMPLY_STRS)
+        # returns (ids, is_single_token, decoded) -- unpack, do not pass whole
+        r_ids, r_single, r_dec = P.onset_token_ids(tok, P.REFUSAL_STRS)
+        c_ids, c_single, c_dec = P.onset_token_ids(tok, P.COMPLY_STRS)
         mu = ga.residual_norm_stats(model, tok, harm_held, STEER_LAYER)["mu_alltoken"]
 
         pack = P.extract_activations(model, tok, fit_prompts, [FIT_LAYER],
@@ -141,6 +142,8 @@ def run(labels):
                "c_grid": C_GRID, "fit_layer": FIT_LAYER,
                "cos_refit_base": cos_rb,
                "cos_shuffled_base": float(np.dot(v_shuf / np.linalg.norm(v_shuf), v_base)),
+               "refusal_ids": r_ids, "refusal_decoded": r_dec,
+               "comply_ids": c_ids, "comply_decoded": c_dec,
                "steer_param": "h += c*mu*v_hat (layer %d)" % STEER_LAYER}
 
         for arm, vec in (("refit", v_refit), ("shuffled", v_shuf)):
