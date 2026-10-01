@@ -99,13 +99,15 @@ def final_hidden(model, tok, prompts, batch_size=8):
     import torch
     outs = []
     for s in range(0, len(prompts), batch_size):
-        enc = P.encode_batch(tok, [P.fmt(p) for p in prompts[s:s + batch_size]],
-                             device="cuda", side="right")
+        # encode_batch scaffolds internally (do NOT pre-apply P.fmt) and returns
+        # a 3-tuple (enc, last_index, raw_lengths), not a dict.
+        enc, last, _ = P.encode_batch(tok, prompts[s:s + batch_size],
+                                      device="cuda", side="right")
         with torch.no_grad():
             hs = model(**enc, output_hidden_states=True).hidden_states[-1]
             hs = model.model.norm(hs)             # apply the final norm
-        last = enc["attention_mask"].sum(1) - 1
-        outs.append(hs[torch.arange(hs.shape[0]), last].float().cpu().numpy())
+        outs.append(hs[torch.arange(hs.shape[0], device=hs.device), last]
+                    .float().cpu().numpy())
     return np.concatenate(outs, 0).astype(np.float64)
 
 
