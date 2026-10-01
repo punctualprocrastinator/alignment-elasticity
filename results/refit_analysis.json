@@ -1,0 +1,51 @@
+{
+ "base": {
+  "cos_refit_base": 0.9999936203312285,
+  "frozen_rho": 1.0,
+  "refit_rho": 1.0,
+  "shuffled_rho": 0.3728088202205055,
+  "verdict": "reference"
+ },
+ "SFT 1k": {
+  "cos_refit_base": 0.9225701073906578,
+  "frozen_rho": 0.721704042601065,
+  "refit_rho": 0.7837485937148428,
+  "shuffled_rho": 0.3602115052876322,
+  "verdict": "reorganised"
+ },
+ "DPO": {
+  "cos_refit_base": 0.7084135403965277,
+  "frozen_rho": 0.4777094427360684,
+  "refit_rho": 0.5551173779344484,
+  "shuffled_rho": 0.41443036075901896,
+  "verdict": "no signal"
+ },
+ "RLVR first": {
+  "cos_refit_base": 0.7085770998658845,
+  "frozen_rho": 0.47636690917272934,
+  "refit_rho": 0.5521878046951174,
+  "shuffled_rho": 0.40750918772969325,
+  "verdict": "no signal"
+ },
+ "RLVR last": {
+  "cos_refit_base": 0.7110147573066827,
+  "frozen_rho": 0.48141753543838595,
+  "refit_rho": 0.5547513687842196,
+  "shuffled_rho": 0.39619290482262054,
+  "verdict": "reorganised"
+ },
+ "Instruct": {
+  "cos_refit_base": 0.5779238544332621,
+  "frozen_rho": -0.003742593564839121,
+  "refit_rho": 0.02296707417685442,
+  "shuffled_rho": 0.10599264981624541,
+  "verdict": "no signal"
+ },
+ "RL-Zero Math": {
+  "cos_refit_base": 0.9993670668410468,
+  "frozen_rho": 0.9961044026100653,
+  "refit_rho": 0.9950138753468837,
+  "shuffled_rho": 0.41159228980724516,
+  "verdict": "reorganised"
+ }
+}
