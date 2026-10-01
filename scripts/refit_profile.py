@@ -44,18 +44,21 @@ FIT_LAYER = STEER_LAYER = 20
 # Dense near zero (where the lever is fit) and out to the aligned crossing doses.
 C_GRID = [0.0, -0.125, -0.25, -0.375, -0.5, -0.75, -1.0, -1.25, -1.5, -2.0]
 
-REPOS = {
-    "base":              ("allenai/Olmo-3-1025-7B",        "main"),
-    "think-sft-1000":    ("allenai/Olmo-3-7B-Think-SFT",   "step1000"),
-    "think-sft-15000":   ("allenai/Olmo-3-7B-Think-SFT",   "step15000"),
-    "think-sft-43000":   ("allenai/Olmo-3-7B-Think-SFT",   "step43000"),
-    "think-dpo":         ("allenai/Olmo-3-7B-Think-DPO",   "main"),
-    "think-rlvr-first":  ("allenai/Olmo-3-7B-Think",       "step_100"),
-    "think-rlvr-last":   ("allenai/Olmo-3-7B-Think",       "step_1375"),
-    "instruct":          ("allenai/Olmo-3-7B-Instruct",    "main"),
-    "rlz-math":          ("allenai/Olmo-3-7B-RLZero-Math", "main"),
-    "rlz-code":          ("allenai/Olmo-3-7B-RLZero-Code", "main"),
-}
+def resolve_checkpoint(label):
+    """Read repo/branch/commit from the COMMITTED sweep for this label.
+
+    Deriving these beats hardcoding them: a hand-written table had three wrong
+    entries (think-rlvr-first is step_0025 not step_100; the RL-Zero repos are
+    `Olmo-3-7B-RL-Zero-{Math,Code}` at step_1900/step_2900, not `RLZero` at
+    main), each of which would have silently loaded the wrong model or failed.
+    Pinning to the recorded COMMIT also makes this immune to a branch moving.
+    """
+    for p in ("results/gateA_traj/gateA_sweep_%s.json" % label,
+              "results/gateA_sweep_%s.json" % label):
+        if os.path.exists(p):
+            d = json.load(open(p))
+            return d["repo"], (d.get("commit") or d.get("branch")), d.get("branch")
+    raise KeyError("no committed sweep for %r; cannot resolve its repo/revision" % label)
 
 
 def log(m):
@@ -99,8 +102,8 @@ def run(labels):
         if os.path.exists(out_path):
             log("skip %s (done)" % label)
             continue
-        repo, rev = REPOS[label]
-        log("loading %s @ %s" % (repo, rev))
+        repo, rev, branch = resolve_checkpoint(label)
+        log("loading %s @ %s (branch %s)" % (repo, str(rev)[:12], branch))
         t0 = time.time()
         model = P.load_model(repo, revision=rev)
         tok = P.load_tokenizer(repo, revision=rev)
@@ -116,7 +119,7 @@ def run(labels):
         cos_rb = float(np.dot(v_refit / np.linalg.norm(v_refit), v_base))
         log("%s mu=%.2f cos(refit,base)=%.3f" % (label, mu, cos_rb))
 
-        rec = {"label": label, "repo": repo, "revision": rev,
+        rec = {"label": label, "repo": repo, "revision": rev, "branch": branch,
                "split_fingerprint": fp, "mu_used": float(mu),
                "c_grid": C_GRID, "fit_layer": FIT_LAYER,
                "cos_refit_base": cos_rb,
