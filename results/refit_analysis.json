@@ -13,6 +13,20 @@
   "shuffled_rho": 0.3602115052876322,
   "verdict": "reorganised"
  },
+ "SFT 15k": {
+  "cos_refit_base": 0.758612304321806,
+  "frozen_rho": 0.32850821270531766,
+  "refit_rho": 0.5571979299482487,
+  "shuffled_rho": 0.42670516762919075,
+  "verdict": "no signal"
+ },
+ "SFT 43k": {
+  "cos_refit_base": 0.7209264373599449,
+  "frozen_rho": 0.47097577439435984,
+  "refit_rho": 0.5518142953573839,
+  "shuffled_rho": 0.37072076801920045,
+  "verdict": "reorganised"
+ },
  "DPO": {
   "cos_refit_base": 0.7084135403965277,
   "frozen_rho": 0.4777094427360684,
@@ -46,6 +60,13 @@
   "frozen_rho": 0.9961044026100653,
   "refit_rho": 0.9950138753468837,
   "shuffled_rho": 0.41159228980724516,
+  "verdict": "reorganised"
+ },
+ "RL-Zero Code": {
+  "cos_refit_base": 0.993134669906337,
+  "frozen_rho": 0.9673396834920873,
+  "refit_rho": 0.9636900922523063,
+  "shuffled_rho": 0.3888697217430436,
   "verdict": "reorganised"
  }
 }
