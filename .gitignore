@@ -49,3 +49,14 @@ paper-boundary/*.out
 paper-boundary/*.synctex.gz
 paper-boundary/_preview*.png
 paper-boundary/
+
+# Results from other private tracks, which share results/ (match by pattern; filenames drift)
+results/ext_cav_*.json
+results/grid_family_*.json
+results/sae_released*.json
+results/secondcell_*.json
+
+# Steered model outputs on harmful prompts: kept local, not published.
+# Refusal labels derived from them are stored in each analysis JSON.
+results/round2/*_gen.json
+results/round2/r3/*_gen.json
